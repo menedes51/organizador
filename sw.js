@@ -1,5 +1,5 @@
 /* Organizador — service worker: permite instalar a app e abri-la sem rede. */
-const CACHE = 'organizador-v2.1';
+const CACHE = 'organizador-v3.2';
 const ASSETS = ['./', 'index.html', 'styles.css', 'app.js', 'manifest.webmanifest',
   'icons/icon.svg', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png'];
 
@@ -26,4 +26,13 @@ self.addEventListener('fetch', e => {
       })
       .catch(() => caches.match(e.request).then(r => r || caches.match('./')))
   );
+});
+
+// Tocar num lembrete abre (ou traz para a frente) a app.
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
+    for (const c of list) if ('focus' in c) return c.focus();
+    return self.clients.openWindow('./');
+  }));
 });

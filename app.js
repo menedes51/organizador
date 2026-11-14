@@ -21,6 +21,7 @@ const DIAS_C = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
 const MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho',
   'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
 const REPEATS = { none: 'Não repetir', daily: 'Todos os dias', weekdays: 'Dias úteis', weekly: 'Todas as semanas' };
+const REMINDS = { 0: 'à hora', 5: '5 min antes', 15: '15 min antes', 30: '30 min antes', 60: '1 h antes', 1440: '1 dia antes' };
 const PALETTE = ['#6b78e5', '#d4708f', '#45a283', '#b7925a', '#8b74d6', '#4f9cc4', '#c7744f', '#8a8f98'];
 
 const z = n => String(n).padStart(2, '0');
@@ -69,12 +70,15 @@ const ICONS = {
   download: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>',
   upload: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>',
   phone: '<rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M11 18h2"/>',
+  search: '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
+  bell: '<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
   pencil: '<path d="M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/>',
 };
 const icon = (name, cls = '') =>
   `<svg class="i ${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ICONS[name]}</svg>`;
 
 /* ------------------------------------------------------------------ data */
+const APP_VERSION = '3.2';
 const KEY = 'organizador.v2';
 const UI_KEY = 'organizador.ui';
 const CAT_DEFAULTS = [
@@ -136,6 +140,7 @@ const ui = Object.assign({
   showDone: { today: true }, calMode: 'month',
 }, JSON.parse(localStorage.getItem(UI_KEY) || '{}'));
 ui.openTask = null;
+ui.query = '';
 const saveUi = () => localStorage.setItem(UI_KEY, JSON.stringify({
   view: ui.view, listId: ui.listId, cat: ui.cat, showDone: ui.showDone, calMode: ui.calMode,
 }));
@@ -198,12 +203,13 @@ function taskRow(t, opt = {}) {
   if (c) meta.push(`<span class="meta"><span class="dot" style="--c:${c.color}"></span>${esc(c.name)}</span>`);
   if (l && opt.showList !== false) meta.push(`<span class="meta">${icon('folder')}${esc(l.name)}</span>`);
   if (t.repeat && t.repeat !== 'none') meta.push(`<span class="meta" title="${REPEATS[t.repeat]}">${icon('repeat')}</span>`);
+  if (t.remind != null && t.time) meta.push(`<span class="meta" title="Lembrete ${REMINDS[t.remind] || ''}">${icon('bell')}</span>`);
   if (t.notes) meta.push(`<span class="meta">${icon('note')}</span>`);
   return `
     <div class="task ${t.done ? 'done' : ''} ${ui.openTask === t.id ? 'open' : ''}" data-task="${t.id}">
       <button class="check" data-toggle="${t.id}" style="${c ? `--c:${c.color}` : ''}" aria-label="Concluir">${icon('check')}</button>
       <div class="task-body">
-        <div class="task-title">${esc(t.title)}</div>
+        <div class="task-title">${opt.hl ? highlight(t.title, opt.hl) : esc(t.title)}</div>
         ${meta.length ? `<div class="task-meta">${meta.join('')}</div>` : ''}
       </div>
     </div>`;
@@ -239,8 +245,44 @@ function catChips() {
 function head(title, sub = '', extra = '', actions = '') {
   return `<div class="page-head">
       <div><h1 class="page-title">${esc(title)}</h1>${sub ? `<div class="page-sub">${sub}</div>` : ''}${extra}</div>
-      <div class="head-actions">${actions}</div>
+      <div class="head-actions">${actions}<button class="icon-btn m-only" data-nav="search" aria-label="Procurar">${icon('search')}</button></div>
     </div>`;
+}
+
+/* ------------------------------------------------------------------ search */
+const norm = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+
+function highlight(text, q) {
+  const chars = [...text];
+  const map = [], nArr = [];
+  chars.forEach((c, i) => { for (const b of [...norm(c)]) { nArr.push(b); map.push(i); } });
+  const qArr = [...q];
+  for (let at = 0; at + qArr.length <= nArr.length; at++) {
+    if (nArr.slice(at, at + qArr.length).join('') === q) {
+      const a = map[at], b = map[at + qArr.length - 1] + 1;
+      return esc(chars.slice(0, a).join('')) + '<mark>' + esc(chars.slice(a, b).join('')) + '</mark>' + esc(chars.slice(b).join(''));
+    }
+  }
+  return esc(text);
+}
+
+function searchResults() {
+  const q = norm(ui.query).trim();
+  if (!q) return empty('Procura em todas as tarefas.', 'Títulos, notas, listas e categorias.');
+  const hits = tasks().filter(t => {
+    const hay = [t.title, t.notes, listById(t.list)?.name, catById(t.cat)?.name].map(norm).join(' \n ');
+    return hay.includes(q);
+  });
+  if (!hits.length) return empty('Sem resultados.', `Nada encontrado para "${ui.query.trim()}".`);
+  return section('Por fazer', sortTasks(hits.filter(t => !t.done)), { hl: q }) +
+    section('Concluídas', sortDone(hits.filter(t => t.done)), { hl: q });
+}
+
+function viewSearch() {
+  const top = head('Procurar') + `<div class="search-box">${icon('search')}
+    <input id="searchInput" type="search" placeholder="Procurar tarefas, notas, listas…" value="${esc(ui.query)}" autocomplete="off" enterkeyhint="search">
+  </div>`;
+  return { top, content: searchResults() };
 }
 
 function viewToday() {
@@ -459,7 +501,7 @@ function viewLists() { // vista de listas/categorias (telemóvel)
       <button class="row" data-install>${icon('phone')}<span class="label">Instalar app</span></button>
       <button class="row" data-theme-toggle>${icon(document.documentElement.dataset.theme === 'dark' ? 'sun' : 'moon')}<span class="label">${document.documentElement.dataset.theme === 'dark' ? 'Tema claro' : 'Tema escuro'}</span></button>
     </div>
-    <div class="empty" style="padding-top:4px">As tarefas ficam guardadas só neste dispositivo. Usa Exportar / Importar cópia para as passar para outro.</div>`;
+    <div class="empty" style="padding-top:4px">As tarefas ficam guardadas só neste dispositivo. Usa Exportar / Importar cópia para as passar para outro.<br><br>Versão ${APP_VERSION}</div>`;
   return { top: head('Listas'), content };
 }
 
@@ -473,6 +515,7 @@ function renderSidebar() {
   $('#sidebar').innerHTML = `
     <div class="brand"><svg viewBox="0 0 24 24"><rect width="24" height="24" rx="6.5" fill="var(--text)"/><path d="M7.2 12.4l3.1 3.1 6.5-6.8" stroke="var(--bg)" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>Organizador</div>
     <nav class="nav">
+      ${nav('search', 'search', 'Procurar')}
       ${nav('today', 'today', 'Hoje', nToday)}
       ${nav('upcoming', 'upcoming', 'Próximos', nUp)}
       ${nav('calendar', 'calendar', 'Calendário')}
@@ -491,7 +534,7 @@ function renderSidebar() {
       </div>
     </div>
     <div class="side-foot">
-      <span>Guardado neste ${native ? 'PC' : 'dispositivo'}</span>
+      <span>Neste ${native ? 'PC' : 'dispositivo'} · v${APP_VERSION}</span>
       <span style="display:flex;gap:2px"><button class="icon-btn" data-install title="Instalar app">${icon('phone')}</button>
       <button class="icon-btn" data-data-menu title="Exportar / importar">${icon('more')}</button>
       <button class="icon-btn" data-theme-toggle title="${theme === 'dark' ? 'Tema claro' : 'Tema escuro'}">${icon(theme === 'dark' ? 'sun' : 'moon')}</button></span>
@@ -508,7 +551,7 @@ function renderTabbar() {
 }
 
 function render() {
-  const v = { today: viewToday, upcoming: viewUpcoming, calendar: viewCalendar, list: viewList, lists: viewLists }[ui.view] || viewToday;
+  const v = { today: viewToday, upcoming: viewUpcoming, calendar: viewCalendar, list: viewList, lists: viewLists, search: viewSearch }[ui.view] || viewToday;
   const { top, content } = v();
   const sc = $('#tgScroll');
   if (sc) ui.tgScroll = sc.scrollTop;
@@ -516,8 +559,8 @@ function render() {
   const sc2 = $('#tgScroll');
   if (sc2) sc2.scrollTop = ui.tgScroll ?? 7 * HOUR_PX;
   $('#content').innerHTML = content;
-  $('#composer').classList.toggle('hidden', ui.view === 'lists');
-  document.body.classList.toggle('lists-view', ui.view === 'lists');
+  $('#composer').classList.toggle('hidden', ui.view === 'lists' || ui.view === 'search');
+  document.body.classList.toggle('lists-view', ui.view === 'lists' || ui.view === 'search');
   document.body.classList.toggle('wide', ui.view === 'calendar' && ui.calMode === 'week');
   renderSidebar();
   renderTabbar();
@@ -818,6 +861,10 @@ function renderDetail() {
           <div class="prop-value"><input type="time" class="field ${t.time ? '' : 'empty-val'}" data-f="time" value="${t.time || ''}">
           ${t.time ? `<select class="field" data-f="duration" title="Duração">${[15, 30, 45, 60, 90, 120, 180, 240].map(m => `<option value="${m}" ${(t.duration || 60) === m ? 'selected' : ''}>${fmtDur(m)}</option>`).join('')}</select>
           <button class="icon-btn sm" data-clear="time" title="Remover hora">${icon('x')}</button>` : ''}</div></div>
+        <div class="prop"><div class="prop-label">${icon('bell')}Lembrete</div>
+          <div class="prop-value">${t.time && t.date
+            ? `<select class="field ${t.remind == null ? 'empty-val' : ''}" data-f="remind"><option value="">Sem lembrete</option>${Object.entries(REMINDS).map(([k, v]) => `<option value="${k}" ${String(t.remind) === k ? 'selected' : ''}>${cap(v)}</option>`).join('')}</select>`
+            : '<span class="field empty-val" style="border:0">Define uma data e hora primeiro</span>'}</div></div>
         <div class="prop"><div class="prop-label">${icon('tag')}Categoria</div>
           <div class="prop-value">${cats().map(k => `<button class="pill ${t.cat === k.id ? 'on' : ''}" style="--c:${k.color}" data-set-cat="${k.id}"><span class="dot"></span>${esc(k.name)}</button>`).join('')}</div></div>
         <div class="prop"><div class="prop-label">${icon('folder')}Lista</div>
@@ -849,6 +896,12 @@ function renderDetail() {
     const k = f.dataset.f;
     let v = f.value || null;
     if (k === 'duration') return save({ duration: Number(f.value) });
+    if (k === 'remind') {
+      const val = f.value === '' ? null : Number(f.value);
+      save({ remind: val }, true);
+      if (val != null) askNotifyPermission();
+      return;
+    }
     if (k === 'repeat') {
       v = f.value;
       const tk = T();
@@ -887,6 +940,7 @@ function setView(view, listId = null) {
   resetDraft();
   render();
   window.scrollTo(0, 0);
+  if (view === 'search') setTimeout(() => { const i = $('#searchInput'); if (i) { i.focus(); i.select(); } }, 30);
 }
 
 function setTheme(t) {
@@ -898,6 +952,7 @@ function setTheme(t) {
 
 /* ------------------------------------------------------------------ events */
 document.addEventListener('click', e => {
+  if (suppressClick) { suppressClick = false; return; }
   const q = s => e.target.closest(s);
   let el;
   if ((el = q('[data-list-more]'))) { e.stopPropagation(); return listOptions(el, el.dataset.listMore); }
@@ -977,8 +1032,15 @@ $('#fab').innerHTML = icon('plus');
 $('#fab').addEventListener('click', () => openComposerSheet());
 $('#backdrop').addEventListener('click', () => { closeDetail(); closeComposerSheet(); });
 
+document.addEventListener('input', e => {
+  if (e.target.id !== 'searchInput') return;
+  ui.query = e.target.value;
+  $('#content').innerHTML = searchResults();
+});
+
 document.addEventListener('keydown', e => {
   const typing = /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName);
+  if (!typing && e.key === '/') { e.preventDefault(); setView('search'); return; }
   if (e.key === 'Escape') { closeMenu(); closeDetail(); closeComposerSheet(); }
   if (!typing && (e.key === 'n' || ((e.metaKey || e.ctrlKey) && e.key === 'k'))) {
     e.preventDefault();
@@ -1062,7 +1124,116 @@ async function startNative() {
   if (ui.view === 'list' && !listById(ui.listId)) ui.view = 'today';
   resetDraft();
   render();
+  checkReminders();
 }
+
+/* ------------------------------------------------------------------ reminders */
+const FIRED_KEY = 'organizador.reminded';
+
+async function askNotifyPermission() {
+  if (native || !('Notification' in window)) return;
+  if (Notification.permission === 'default') {
+    const r = await Notification.requestPermission();
+    if (r === 'granted') toast('Lembretes ativados');
+  }
+  if (Notification.permission === 'denied') toast('As notificações estão bloqueadas nas definições do browser');
+}
+
+function notifyTask(t) {
+  const body = t.remind === 0 ? `Agora · ${t.time}` : `Às ${t.time} · ${REMINDS[t.remind]}`;
+  toast(`Lembrete: ${t.title}`);
+  if (native) { native.notify(t.title, body); return; }
+  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+  const opts = { body, icon: 'icons/icon-192.png', badge: 'icons/icon-192.png', tag: t.id };
+  const fallback = () => { try { new Notification(t.title, opts); } catch (e) { /* sem suporte */ } };
+  if (navigator.serviceWorker) {
+    navigator.serviceWorker.getRegistration()
+      .then(reg => (reg ? reg.showNotification(t.title, opts) : fallback()))
+      .catch(fallback);
+  } else fallback();
+}
+
+function checkReminders() {
+  let fired;
+  try { fired = JSON.parse(localStorage.getItem(FIRED_KEY) || '{}'); } catch (e) { fired = {}; }
+  const now = Date.now();
+  let changed = false;
+  for (const t of tasks()) {
+    if (t.done || t.remind == null || !t.date || !t.time) continue;
+    const at = parseISO(t.date);
+    const [h, m] = t.time.split(':').map(Number);
+    at.setHours(h, m, 0, 0);
+    const fireAt = at.getTime() - t.remind * 60000;
+    if (now < fireAt || now - fireAt > 2 * 3600e3 || fired[t.id] === fireAt) continue;
+    fired[t.id] = fireAt; changed = true;
+    notifyTask(t);
+  }
+  if (changed) localStorage.setItem(FIRED_KEY, JSON.stringify(fired));
+}
+setInterval(checkReminders, 20000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) checkReminders(); });
+
+/* ------------------------------------------------------------------ drag in calendar (Dia / Semana) */
+let drag = null, suppressClick = false;
+document.addEventListener('pointerdown', e => {
+  const ev = e.target.closest('.ev');
+  if (!ev || e.target.closest('.ev-check') || e.button > 0) return;
+  const t = taskById(ev.dataset.task);
+  if (!t) return;
+  const r = ev.getBoundingClientRect();
+  drag = { el: ev, id: t.id, pid: e.pointerId, x0: e.clientX, y0: e.clientY, offY: e.clientY - r.top,
+    dur: t.duration || 60, touch: e.pointerType !== 'mouse', active: false };
+  if (drag.touch) drag.timer = setTimeout(() => { if (drag && !drag.active) startDrag(); }, 300);
+});
+function startDrag() {
+  drag.active = true;
+  drag.el.classList.add('dragging');
+  if (navigator.vibrate) navigator.vibrate(12);
+}
+document.addEventListener('pointermove', e => {
+  if (!drag || e.pointerId !== drag.pid) return;
+  const dist = Math.hypot(e.clientX - drag.x0, e.clientY - drag.y0);
+  if (!drag.active) {
+    if (drag.touch) { if (dist > 8) { clearTimeout(drag.timer); drag = null; } return; }
+    if (dist < 5) return;
+    startDrag();
+  }
+  e.preventDefault();
+  const cols = [...document.querySelectorAll('.tg-col')];
+  const col = cols.find(c => { const r = c.getBoundingClientRect(); return e.clientX >= r.left && e.clientX < r.right; })
+    || drag.el.parentElement;
+  const cr = col.getBoundingClientRect();
+  let min = Math.round((e.clientY - drag.offY - cr.top) / HOUR_PX * 4) * 15;
+  min = Math.max(0, Math.min(1440 - 15, min));
+  if (col !== drag.el.parentElement) col.appendChild(drag.el);
+  Object.assign(drag.el.style, { top: `${min * HOUR_PX / 60}px`, left: '2px', width: 'calc(100% - 4px)' });
+  drag.el.querySelector('.ev-time').textContent = `${fromMin(min)} – ${fromMin(Math.min(min + drag.dur, 1439))}`;
+  drag.target = { date: col.dataset.slotDay, time: fromMin(min) };
+  const sc = $('#tgScroll');
+  if (sc) {
+    const sr = sc.getBoundingClientRect();
+    if (e.clientY < sr.top + 30) sc.scrollTop -= 10;
+    else if (e.clientY > sr.bottom - 30) sc.scrollTop += 10;
+  }
+});
+document.addEventListener('touchmove', e => { if (drag && drag.active) e.preventDefault(); }, { passive: false });
+document.addEventListener('contextmenu', e => { if (drag) e.preventDefault(); });
+function endDrag(cancelled) {
+  if (!drag) return;
+  clearTimeout(drag.timer);
+  const d = drag; drag = null;
+  if (!d.active) return;
+  suppressClick = true;
+  setTimeout(() => { suppressClick = false; }, 400);
+  const t = taskById(d.id);
+  if (!cancelled && t && d.target && (d.target.date !== t.date || d.target.time !== t.time)) {
+    touch(t, d.target);
+    commit();
+    toast(`Movida para ${fmtDay(d.target.date).toLowerCase()} às ${d.target.time}`);
+  } else render();
+}
+document.addEventListener('pointerup', () => endDrag(false));
+document.addEventListener('pointercancel', () => endDrag(true));
 
 /* ------------------------------------------------------------------ install (PWA) */
 let installEvt = null;
@@ -1096,8 +1267,9 @@ addEventListener('resize', () => { if (isMobile() !== wasMobile) { wasMobile = i
 setInterval(() => { if (ui.view === 'calendar' && ui.calMode !== 'month' && !document.hidden) render(); }, 60000);
 
 /* ------------------------------------------------------------------ start */
-if (ui.view === 'list' && !listById(ui.listId)) ui.view = 'today';
+if ((ui.view === 'list' && !listById(ui.listId)) || ui.view === 'search') ui.view = 'today';
 buildComposer();
 resetDraft();
 render();
 startNative();
+setTimeout(checkReminders, 1500);

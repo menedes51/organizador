@@ -401,6 +401,8 @@ body.wide main { max-width: 1180px; }
   background: color-mix(in srgb, var(--c) 17%, var(--surface));
   font-size: 12px; line-height: 1.3;
 }
+.ev { touch-action: pan-y; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+.ev.dragging { z-index: 5; opacity: .92; box-shadow: var(--shadow); cursor: grabbing; transition: none; outline: 2px solid var(--c); }
 .ev:hover { background: color-mix(in srgb, var(--c) 26%, var(--surface)); }
 .ev.done { opacity: .5; }
 .ev.done .ev-title { text-decoration: line-through; }
@@ -434,6 +436,16 @@ body.wide main { max-width: 1180px; }
   .ev { font-size: 13px; }
 }
 
+/* --------------------------------------------------------------- search */
+.search-box {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 26px; padding: 0 14px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 12px; color: var(--text-3);
+}
+.search-box:focus-within { border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 10%, transparent); }
+.search-box input { flex: 1; min-width: 0; height: 46px; border: 0; outline: 0; background: transparent; font-size: 15px; color: var(--text); }
+.search-box input::placeholder { color: var(--text-3); }
+mark { background: color-mix(in srgb, var(--accent) 32%, transparent); color: inherit; border-radius: 3px; padding: 0 1px; }
+
 /* --------------------------------------------------------------- mobile chrome */
 .tabbar, .fab { display: none; }
 .m-only { display: none; }
@@ -444,6 +456,8 @@ body.wide main { max-width: 1180px; }
   .sidebar { display: none; }
   main { padding: calc(env(safe-area-inset-top) + 22px) 16px calc(var(--tabbar) + env(safe-area-inset-bottom) + 100px); }
   .m-only { display: initial; }
+  .icon-btn.m-only { display: inline-flex; }
+  .search-box input { font-size: 16px; }
   .page-head { margin-bottom: 14px; }
   .page-title { font-size: 30px; }
   .head-actions { display: flex; align-items: center; gap: 6px; margin-top: 4px; }
