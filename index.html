@@ -15,9 +15,12 @@
   <link rel="stylesheet" href="styles.css">
   <script>
     (function () {
-      var t = localStorage.getItem('organizador.theme') ||
-        (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+      var p = localStorage.getItem('organizador.theme') || 'auto';
+      var t = p === 'auto' ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : p;
+      if (localStorage.getItem('organizador.density')) document.documentElement.classList.add('compact');
       document.documentElement.dataset.theme = t;
+      var ac = localStorage.getItem('organizador.accent');
+      if (ac) document.documentElement.style.setProperty('--accent', ac);
     })();
   </script>
 </head>

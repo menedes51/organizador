@@ -1,5 +1,5 @@
 /* Organizador — service worker: permite instalar a app e abri-la sem rede. */
-const CACHE = 'organizador-v3.2';
+const CACHE = 'organizador-v4.1';
 const ASSETS = ['./', 'index.html', 'styles.css', 'app.js', 'manifest.webmanifest',
   'icons/icon.svg', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png'];
 
