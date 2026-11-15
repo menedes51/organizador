@@ -1,5 +1,5 @@
-/* Organizador · 07-arranque.js — Arranque da app
-   (os ficheiros js/01…07 são carregados por esta ordem; partilham as mesmas variáveis globais) */
+/* Organizador · 08-arranque.js — Arranque da app
+   (os ficheiros js/01…08 são carregados por esta ordem; partilham as mesmas variáveis globais) */
 'use strict';
 
 /* ------------------------------------------------------------------ start */
@@ -8,6 +8,7 @@ const launch = new URLSearchParams(location.search);
 if (pref('start') !== 'last') ui.view = pref('start');
 if (launch.get('view') && VIEW_NAMES[launch.get('view')]) ui.view = launch.get('view');
 if (launch.toString()) history.replaceState(null, '', location.pathname);
+if (ui.view === 'account' && ui.accMode !== 'register') ui.accMode = 'login';
 if ((ui.view === 'list' && !listById(ui.listId)) || ui.view === 'search' || (ui.view === 'subject' && !subjectById(ui.subjectId)) || (ui.view === 'project' && !projectById(ui.projectId))) ui.view = 'today';
 COLLS.forEach(k => { db[k] ||= []; });
 if (purgeOld()) saveLocal();
@@ -22,6 +23,7 @@ render();
 startNative().then(() => {
   maybeOnboard();
   autoBackup();
+  startSync();
   setTimeout(exportNag, 4000);
   if (launch.get('action') === 'new') { if (isMobile()) openComposerSheet(); else { const i = $('#newTitle'); if (i) i.focus(); } }
 });

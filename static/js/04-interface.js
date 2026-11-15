@@ -1,5 +1,5 @@
 /* Organizador · 04-interface.js — Menus, diálogos, painel de detalhe, navegação e cliques
-   (os ficheiros js/01…07 são carregados por esta ordem; partilham as mesmas variáveis globais) */
+   (os ficheiros js/01…08 são carregados por esta ordem; partilham as mesmas variáveis globais) */
 'use strict';
 
 /* ------------------------------------------------------------------ pickers */

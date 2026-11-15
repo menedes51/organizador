@@ -1,5 +1,5 @@
 /* Organizador · 06-extras.js — Lembretes, arrastar, instalação, Foco, Estatísticas, gestos e boas-vindas
-   (os ficheiros js/01…07 são carregados por esta ordem; partilham as mesmas variáveis globais) */
+   (os ficheiros js/01…08 são carregados por esta ordem; partilham as mesmas variáveis globais) */
 'use strict';
 
 /* ------------------------------------------------------------------ reminders */

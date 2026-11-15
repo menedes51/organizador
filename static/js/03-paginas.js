@@ -1,5 +1,5 @@
 /* Organizador · 03-paginas.js — Compositor, formulários, Disciplinas, Trabalhos, Aparência e datas por texto
-   (os ficheiros js/01…07 são carregados por esta ordem; partilham as mesmas variáveis globais) */
+   (os ficheiros js/01…08 são carregados por esta ordem; partilham as mesmas variáveis globais) */
 'use strict';
 
 /* ------------------------------------------------------------------ composer */

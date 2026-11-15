@@ -1,5 +1,5 @@
 /* Organizador · 02-vistas.js — Desenho das tarefas e das páginas (Hoje, Calendário, Listas…)
-   (os ficheiros js/01…07 são carregados por esta ordem; partilham as mesmas variáveis globais) */
+   (os ficheiros js/01…08 são carregados por esta ordem; partilham as mesmas variáveis globais) */
 'use strict';
 
 /* ------------------------------------------------------------------ rendering: tasks */
@@ -81,15 +81,15 @@ function catChips() {
 }
 
 const VIEW_NAMES = { today: 'Hoje', upcoming: 'Próximos', calendar: 'Calendário', list: 'Lista', lists: 'Mais', search: 'Procurar', focus: 'Foco',
-  stats: 'Estatísticas', subjects: 'Disciplinas', subject: 'Disciplina', projects: 'Trabalhos', project: 'Trabalho', appearance: 'Aparência', backups: 'Cópias de segurança' };
+  stats: 'Estatísticas', subjects: 'Disciplinas', subject: 'Disciplina', projects: 'Trabalhos', project: 'Trabalho', appearance: 'Aparência', backups: 'Cópias de segurança', account: 'Conta' };
 function parentOf(v) {
   if (v === 'subject') return 'subjects';
   if (v === 'project') return 'projects';
-  if (['list', 'subjects', 'stats', 'upcoming', 'appearance', 'backups'].includes(v)) return isMobile() ? 'lists' : 'today';
+  if (['list', 'subjects', 'stats', 'upcoming', 'appearance', 'backups', 'account'].includes(v)) return isMobile() ? 'lists' : 'today';
   return 'today';
 }
 function needsBack() {
-  if (['subject', 'project', 'list', 'appearance', 'backups'].includes(ui.view)) return true;
+  if (['subject', 'project', 'list', 'appearance', 'backups', 'account'].includes(ui.view)) return true;
   if (ui.view === 'calendar' && ui.calMode === 'timetable' && navStack.length && navStack[navStack.length - 1].view === 'calendar') return true;
   return isMobile() && ['subjects', 'stats', 'upcoming'].includes(ui.view);
 }
@@ -423,6 +423,7 @@ function viewLists() { // vista de listas/categorias (telemóvel)
     </div>
     <div class="section-title">Dados</div>
     <div class="rows">
+      <button class="row" data-nav="account">${icon('cloud')}<span class="label">Conta e sincronização</span><span class="count">${loggedIn() ? esc(account().user || '') : 'sem conta'}</span>${icon('chevR')}</button>
       <button class="row" data-nav="backups">${icon('shield')}<span class="label">Cópias de segurança</span><span class="count">${backupsOn() ? 'automáticas' : 'desligadas'}</span>${icon('chevR')}</button>
       <button class="row" data-ics-all>${icon('calendar')}<span class="label">Pôr tudo no calendário do telemóvel</span></button>
     </div>
@@ -432,7 +433,7 @@ function viewLists() { // vista de listas/categorias (telemóvel)
       <button class="row" data-accent>${icon('palette')}<span class="label">Cor de destaque</span><span class="dot" style="--c:var(--accent);width:12px;height:12px"></span></button>
       <button class="row" data-nav="appearance">${icon('sliders')}<span class="label">Temas e personalização</span><span class="count">${(THEMES.find(x => x[0] === themePref()) || THEMES[0])[1]}</span>${icon('chevR')}</button>
     </div>
-    <div class="empty" style="padding-top:4px">As tarefas ficam guardadas só neste dispositivo. Usa Exportar / Importar cópia para as passar para outro.<br><br>Versão ${APP_VERSION}</div>`;
+    <div class="empty" style="padding-top:4px">${loggedIn() ? 'As tarefas ficam neste dispositivo e são sincronizadas com a tua conta.' : 'As tarefas ficam guardadas só neste dispositivo. Entra numa conta, ou usa Exportar / Importar cópia, para as passar para outro.'}<br><br>Versão ${APP_VERSION}</div>`;
   return { top: head('Mais'), content };
 }
 
@@ -475,8 +476,8 @@ function renderSidebar() {
       </div>
     </div>
     <div class="side-foot">
-      <span>Neste ${native ? 'PC' : 'dispositivo'} · v${APP_VERSION}</span>
-      <span style="display:flex;gap:2px"><button class="icon-btn" data-install title="Instalar app">${icon('phone')}</button>
+      <span>${loggedIn() ? esc(account().user || '') : `Neste ${native ? 'PC' : 'dispositivo'}`} · v${APP_VERSION}</span>
+      <span style="display:flex;gap:2px"><button class="icon-btn sync-foot ${loggedIn() ? 'on' : ''}" id="syncFoot" data-nav="account" title="${esc(syncStatusText())}">${icon('cloud')}</button><button class="icon-btn" data-install title="Instalar app">${icon('phone')}</button>
       <button class="icon-btn" data-data-menu title="Exportar / importar">${icon('more')}</button>
       <button class="icon-btn" data-theme-toggle title="Aparência (tema, cor, vista compacta)">${icon(theme === 'dark' ? 'moon' : 'sun')}</button></span>
     </div>`;
@@ -484,7 +485,7 @@ function renderSidebar() {
 
 function renderTabbar() {
   const tab = (v, ic, label) => {
-    const active = ui.view === v || (v === 'lists' && ['list', 'stats', 'subjects', 'subject', 'upcoming', 'appearance', 'backups'].includes(ui.view)) || (v === 'projects' && ui.view === 'project');
+    const active = ui.view === v || (v === 'lists' && ['list', 'stats', 'subjects', 'subject', 'upcoming', 'appearance', 'backups', 'account'].includes(ui.view)) || (v === 'projects' && ui.view === 'project');
     return `<button class="tab ${active ? 'active' : ''}" data-nav="${v}">${icon(ic)}${label}</button>`;
   };
   $('#tabbar').innerHTML = tab('today', 'today', 'Hoje') + tab('calendar', 'calendar', 'Calendário') +
@@ -492,7 +493,7 @@ function renderTabbar() {
 }
 
 function render() {
-  const v = { today: viewToday, upcoming: viewUpcoming, calendar: viewCalendar, list: viewList, lists: viewLists, search: viewSearch, focus: viewFocus, stats: viewStats, subjects: viewSubjects, subject: viewSubject, projects: viewProjects, project: viewProject, appearance: viewAppearance, backups: viewBackups }[ui.view] || viewToday;
+  const v = { today: viewToday, upcoming: viewUpcoming, calendar: viewCalendar, list: viewList, lists: viewLists, search: viewSearch, focus: viewFocus, stats: viewStats, subjects: viewSubjects, subject: viewSubject, projects: viewProjects, project: viewProject, appearance: viewAppearance, backups: viewBackups, account: viewAccount }[ui.view] || viewToday;
   const { top, content } = v();
   const sc = $('#tgScroll');
   if (sc) ui.tgScroll = sc.scrollTop;
@@ -510,7 +511,7 @@ function render() {
     }
   }
   $('#content').innerHTML = content;
-  const noComposer = ['lists', 'search', 'focus', 'stats', 'subjects', 'projects', 'project', 'appearance', 'backups'].includes(ui.view) || (ui.view === 'calendar' && ui.calMode === 'timetable');
+  const noComposer = ['lists', 'search', 'focus', 'stats', 'subjects', 'projects', 'project', 'appearance', 'backups', 'account'].includes(ui.view) || (ui.view === 'calendar' && ui.calMode === 'timetable');
   $('#composer').classList.toggle('hidden', noComposer);
   document.body.classList.toggle('lists-view', noComposer);
   document.body.classList.toggle('wide', (ui.view === 'calendar' && (ui.calMode === 'week' || ui.calMode === 'timetable')) || ui.view === 'project');

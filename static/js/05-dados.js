@@ -1,5 +1,5 @@
 /* Organizador · 05-dados.js — Exportar/importar, cópias de segurança, calendário (.ics), partilha e app de PC
-   (os ficheiros js/01…07 são carregados por esta ordem; partilham as mesmas variáveis globais) */
+   (os ficheiros js/01…08 são carregados por esta ordem; partilham as mesmas variáveis globais) */
 'use strict';
 
 /* ------------------------------------------------------------------ export / import */

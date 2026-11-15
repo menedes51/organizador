@@ -44,6 +44,31 @@ class Api:
         os.replace(tmp, DATA_FILE)
         return True
 
+    def server_request(self, method, url, token="", body=""):
+        """Plano B para os pedidos ao servidor de contas (ESP8266): a app tenta primeiro
+        pela janela (fetch) e só usa isto se falhar. Nota: no Mac, o macOS pode bloquear
+        o Python na rede local (Definições → Privacidade e segurança → Rede local).
+        Devolve JSON: {"status": código HTTP, "body": texto} ou {"status": 0, "error": ...}."""
+        import urllib.error
+        import urllib.request
+        method = str(method).upper()
+        url = str(url)
+        if method not in ("GET", "POST", "PUT") or not re.fullmatch(r"https?://[^\s/?#]+/api/[\w/]+", url):
+            return json.dumps({"status": 0, "error": "pedido inválido"})
+        data = str(body).encode("utf-8") if body else (b"" if method != "GET" else None)
+        req = urllib.request.Request(url, data=data, method=method)
+        if body:
+            req.add_header("Content-Type", "application/json")
+        if token:
+            req.add_header("Authorization", "Bearer " + str(token))
+        try:
+            with urllib.request.urlopen(req, timeout=12) as r:
+                return json.dumps({"status": r.status, "body": r.read().decode("utf-8", "replace")})
+        except urllib.error.HTTPError as e:
+            return json.dumps({"status": e.code, "body": e.read().decode("utf-8", "replace")})
+        except Exception as e:  # sem rede, nome desconhecido, tempo esgotado…
+            return json.dumps({"status": 0, "error": str(e)})
+
     def notify(self, title, body):
         """Notificação do macOS (lembretes)."""
         if sys.platform == "darwin":

@@ -177,6 +177,38 @@ test('resumo agrupa por pessoa', () => {
   expect(txt).toContain('Sem responsável:');
 });
 
+/* ------------------------------------------------------------ sincronização com o servidor */
+describe('Sincronização (conta)');
+const tk = (id, title, updatedAt, extra = {}) => ({ id, title, cat: 'pessoal', created: 1, updatedAt, ...extra });
+const dbWith = (...ts) => ({ ...blank(), tasks: ts });
+test('servidor vazio: envia tudo, não muda nada cá', () => {
+  const r = syncMerge(sanitizeDb(dbWith(tk('a', 'A', 10))).db, {});
+  expect([r.merged.tasks.map(t => t.id), r.changedLocal, r.changedRemote]).toBe([['a'], false, true]);
+});
+test('fica a alteração mais recente de cada item', () => {
+  const local = sanitizeDb(dbWith(tk('a', 'A local', 20), tk('b', 'B local', 5))).db;
+  const r = syncMerge(local, dbWith(tk('a', 'A servidor', 10), tk('b', 'B servidor', 30), tk('c', 'C novo', 1)));
+  const t = id => r.merged.tasks.find(x => x.id === id).title;
+  expect([t('a'), t('b'), t('c'), r.changedLocal, r.changedRemote]).toBe(['A local', 'B servidor', 'C novo', true, true]);
+});
+test('apagar noutro dispositivo apaga cá', () => {
+  const r = syncMerge(sanitizeDb(dbWith(tk('a', 'A', 10))).db, dbWith(tk('a', 'A', 50, { deleted: true })));
+  expect([r.merged.tasks[0].deleted, live(r.merged.tasks).length]).toBe([true, 0]);
+});
+test('dados iguais: nada para enviar', () => {
+  const d = sanitizeDb(dbWith(tk('a', 'A', 10), tk('b', 'B', 11))).db;
+  const r = syncMerge(d, { ...JSON.parse(JSON.stringify(d)), tasks: [...d.tasks].reverse(), savedAt: 1 });
+  expect([r.changedLocal, r.changedRemote]).toBe([false, false]);
+});
+test('itens inválidos vindos do servidor são ignorados', () => {
+  const r = syncMerge(sanitizeDb(dbWith()).db, dbWith(tk('<script>', 'X', 99), tk('ok', 'Bom', 1)));
+  expect(r.merged.tasks.map(t => t.id)).toBe(['ok']);
+});
+test('endereço do servidor', () => {
+  expect([normServer('organizador.local'), normServer(' 192.168.0.109/ '), normServer('https://x.pt/api'), normServer('ftp://x'), normServer(''), normServer('rui'), normServer('localhost:8790')])
+    .toBe(['http://organizador.local', 'http://192.168.0.109', 'https://x.pt', null, null, null, 'http://localhost:8790']);
+});
+
 /* ------------------------------------------------------------ relatório */
 localStorage.removeItem('teste.organizador.v2');
 localStorage.removeItem('teste.organizador.ui');
