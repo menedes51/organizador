@@ -4,6 +4,20 @@ Todas as mudanças à app ficam registadas aqui, da mais recente para a mais ant
 
 ---
 
+## v4.2.2 — 15 nov 2026 · Servidor testado numa placa a sério
+
+### Novo
+- O servidor (versão **0.2-beta**) passa a funcionar também em **ESP8266** (ex.: NodeMCU / ideaspark com OLED), com o mesmo ficheiro `.ino`. Foi testado numa ESP8266 ideaspark: criar conta, entrar, guardar e ler dados, e os dados continuam lá depois de reiniciar a placa.
+
+### Corrigido
+- As respostas da API indicam agora `charset=utf-8`, e os acentos (ex.: "Física") já não aparecem trocados.
+- `ArduinoJson.h` é incluído antes de `AsyncJson.h`, a ordem que a biblioteca exige.
+
+### Alterado
+- README: como compilar e enviar com o `arduino-cli`, como impedir que o `config.h` com a palavra-passe entre num commit, e o truque da pasta de compilação curta no Windows.
+
+---
+
 ## v4.2.1 — 15 nov 2026 · Projeto completo no GitHub
 
 ### Alterado
