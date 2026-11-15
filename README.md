@@ -57,9 +57,25 @@ Para o Git deixar de ver as alterações a esse ficheiro neste computador:
 git update-index --skip-worktree esp32/organizador_servidor/config.h
 ```
 
-O mesmo código funciona em **ESP32** (placa "DOIT ESP32 DEVKIT V1") e em **ESP8266**
-(placa "NodeMCU 1.0 (ESP-12E Module)", ex.: ideaspark com OLED). Na ESP8266 instala
-"ESP Async TCP" em vez de "Async TCP". A rede Wi-Fi tem de ser de 2,4 GHz.
+A placa usada é a **ESP8266 ideaspark com ecrã OLED** (CH340, USB-C). No Arduino escolhe a placa
+"NodeMCU 1.0 (ESP-12E Module)" (`esp8266:esp8266:nodemcuv2`, core esp8266 3.1.2).
+A rede Wi-Fi tem de ser de **2,4 GHz**: a placa não liga a redes só de 5 GHz.
+
+Bibliotecas (Arduino → Library Manager):
+
+| Biblioteca | Autor | Versão testada | Para quê |
+|---|---|---|---|
+| ESP Async WebServer | ESP32Async | 3.12.1 | servidor web |
+| ESP Async TCP | ESP32Async | 2.0.0 | rede (não uses a antiga "ESPAsyncTCP" 1.2.4) |
+| ArduinoJson | Benoit Blanchon | 7.4.3 | JSON |
+| U8g2 | oliver | 2.36.19 | ecrã OLED (novo na 0.3-beta) |
+
+**Ecrã OLED** (`esp32/organizador_servidor/ecra.h`): SSD1306 de 128×64 por I2C, na ideaspark com
+**SDA = GPIO12 (D6)** e **SCL = GPIO14 (D5)**, endereço 0x3C. O servidor encontra-o sozinho.
+Se não houver ecrã, funciona na mesma. Para o desligar, põe `#define OLED_ENABLED 0` no `config.h`.
+
+O mesmo código também compila para ESP32 (placa "DOIT ESP32 DEVKIT V1", com "Async TCP" do
+ESP32Async em vez de "ESP Async TCP"), mas o projeto usa a ESP8266.
 
 Compilar e enviar com o `arduino-cli` (no Windows usa uma pasta de compilação curta,
 senão o *linker* falha com `CreateProcess: No such file or directory`):

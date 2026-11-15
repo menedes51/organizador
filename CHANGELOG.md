@@ -4,6 +4,25 @@ Todas as mudanças à app ficam registadas aqui, da mais recente para a mais ant
 
 ---
 
+## v4.3.1 — 15 nov 2026 · Servidor com ecrã de estatísticas e arranque sem Wi-Fi
+
+### Novo
+- **Ecrã OLED com as estatísticas do servidor** (servidor **0.3-beta**, ESP8266 ideaspark). Mostra duas páginas que alternam a cada 5 segundos:
+  - **rede:** endereço IP, força do sinal Wi-Fi (com barras), número de contas e há quanto tempo está ligado;
+  - **uso:** pedidos recebidos, entradas e gravações desde que ligou, espaço livre, RAM livre e a última ação (ex.: "entrou ana · há 2 min").
+  - O ecrã é encontrado sozinho (SDA = GPIO12/D6, SCL = GPIO14/D5, endereço 0x3C). Sem ecrã, o servidor funciona na mesma.
+  - Durante o arranque mostra "A ligar Wi-Fi"; se o Wi-Fi cair, mostra "Sem Wi-Fi!".
+  - Brilho reduzido, e o desenho mexe-se 1 píxel por minuto para o OLED não ficar marcado.
+- `GET /api/ping` devolve também `uptimeS` (segundos ligado) e `requests` (pedidos desde que ligou).
+
+### Corrigido
+- **O servidor arranca mesmo que o Wi-Fi ainda não esteja disponível.** Antes, se a placa não ligasse ao Wi-Fi nos primeiros 20 segundos, desistia e o servidor nunca arrancava, mesmo depois de o Wi-Fi aparecer. Isto acontecia sobretudo depois de uma falha de luz, porque o router demora mais a arrancar do que a placa. Agora o servidor arranca sempre, volta a tentar o Wi-Fi a cada 10 segundos, e o `organizador.local` liga-se quando a rede aparece.
+
+### Alterado
+- README: bibliotecas com autor e versão (inclui a nova **U8g2**), pinos do ecrã e como o desligar. O projeto usa a ESP8266. O código continua a compilar para ESP32, mas já não é testado nela.
+
+---
+
 ## v4.3 — 15 nov 2026 · Segurança dos dados, cópias automáticas e calendário
 
 ### Novo
