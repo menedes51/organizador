@@ -20,6 +20,7 @@ Todas as mudanças à app ficam registadas aqui, da mais recente para a mais ant
 
 ### Alterado
 - README: bibliotecas com autor e versão (inclui a nova **U8g2**), pinos do ecrã e como o desligar. O projeto usa a ESP8266. O código continua a compilar para ESP32, mas já não é testado nela.
+- Guia `esp32/Guia_Servidor.pdf` atualizado para a 0.3-beta: biblioteca U8g2, o que mostra o ecrã OLED, os pinos SDA/SCL da ideaspark, o arranque sem Wi-Fi (“AVISO” em vez de “ERRO”) e a pasta com 3 ficheiros.
 
 ---
 
