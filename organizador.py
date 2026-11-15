@@ -13,12 +13,17 @@ Como abrir:
 
 import json
 import os
+import re
+import socket
 import sys
 
 import webview
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 DATA_FILE = os.path.join(ROOT, "dados.json")
+BACKUPS = os.path.join(ROOT, "backups")          # cópias de segurança automáticas
+PID_FILE = os.path.join(ROOT, ".organizador.pid")
+PORT = 42817
 ICON = os.path.join(ROOT, "Organizador.app", "Contents", "Resources", "AppIcon.icns")
 
 
@@ -48,9 +53,53 @@ class Api:
                             "-e", "end run", str(title), str(body)], check=False)
         return True
 
-    def export_file(self, text):
+    # -- cópias de segurança (pasta backups/) --------------------------------
+    @staticmethod
+    def _backup_path(bid):
+        if not re.fullmatch(r"\d{1,16}", str(bid)):
+            raise ValueError("id inválido")
+        return os.path.join(BACKUPS, f"organizador-{bid}.json")
+
+    def backup_save(self, meta, text):
+        meta = json.loads(meta)
+        os.makedirs(BACKUPS, exist_ok=True)
+        path = self._backup_path(int(meta["id"]))
+        with open(path + ".tmp", "w", encoding="utf-8") as f:
+            json.dump({"meta": meta, "data": json.loads(text)}, f, ensure_ascii=False)
+        os.replace(path + ".tmp", path)
+        return True
+
+    def backup_list(self):
+        out = []
+        if os.path.isdir(BACKUPS):
+            for name in os.listdir(BACKUPS):
+                if re.fullmatch(r"organizador-\d+\.json", name):
+                    try:
+                        with open(os.path.join(BACKUPS, name), "r", encoding="utf-8") as f:
+                            out.append(json.load(f)["meta"])
+                    except Exception:
+                        pass
+        out.sort(key=lambda m: m.get("id", 0), reverse=True)
+        return json.dumps(out)
+
+    def backup_read(self, bid):
+        try:
+            with open(self._backup_path(bid), "r", encoding="utf-8") as f:
+                return json.dumps(json.load(f)["data"])
+        except Exception:
+            return None
+
+    def backup_delete(self, bid):
+        try:
+            os.remove(self._backup_path(bid))
+        except Exception:
+            pass
+        return True
+
+    def export_file(self, text, name="organizador-copia.json"):
+        name = re.sub(r"[^\w.\- ]", "_", str(name))[:80] or "organizador-copia.json"
         path = webview.windows[0].create_file_dialog(
-            webview.SAVE_DIALOG, save_filename="organizador-copia.json")
+            webview.SAVE_DIALOG, save_filename=name)
         if not path:
             return False
         if isinstance(path, (list, tuple)):
@@ -84,8 +133,36 @@ def _mac_branding():
         pass
 
 
+def _already_running():
+    """Se a app já estiver aberta, traz essa janela para a frente e devolve True."""
+    try:
+        with open(PID_FILE) as f:
+            pid = int(f.read().strip())
+        os.kill(pid, 0)  # o processo existe?
+    except Exception:
+        return False
+    try:
+        from AppKit import NSRunningApplication
+        app = NSRunningApplication.runningApplicationWithProcessIdentifier_(pid)
+        if app is None or "python" not in str(app.executableURL().path()).lower():
+            return False  # o número pertence agora a outro programa
+        app.activateWithOptions_(3)  # todas as janelas + ignorar a app ativa
+    except Exception:
+        pass
+    return True
+
+
+def _port_free(port):
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        return s.connect_ex(("127.0.0.1", port)) != 0
+
+
 def main():
+    if _already_running():
+        return
     os.chdir(ROOT)
+    with open(PID_FILE, "w") as f:
+        f.write(str(os.getpid()))
     _mac_branding()
     webview.create_window(
         "Organizador", os.path.join(ROOT, "static", "index.html"), js_api=Api(),
@@ -94,8 +171,16 @@ def main():
     )
     # Porta fixa + armazenamento persistente: o tema, a cor e as preferências
     # ficam guardados entre aberturas (as tarefas continuam em dados.json).
-    webview.start(http_server=True, http_port=42817, private_mode=False,
-                  storage_path=os.path.join(ROOT, ".webdata"))
+    # Se a porta estiver ocupada por outro programa, usa uma ao acaso
+    # (a app funciona; só as preferências de aparência não ficam guardadas nessa vez).
+    try:
+        webview.start(http_server=True, http_port=PORT if _port_free(PORT) else None,
+                      private_mode=False, storage_path=os.path.join(ROOT, ".webdata"))
+    finally:
+        try:
+            os.remove(PID_FILE)
+        except OSError:
+            pass
 
 
 if __name__ == "__main__":

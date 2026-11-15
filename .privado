@@ -1,0 +1,24 @@
+# ===========================================================================
+#  Ficheiros PRIVADOS — nunca vão para o GitHub.
+#  Um padrão por linha (mesma sintaxe do .gitignore).
+#  O publicar.sh recusa publicar se algum destes estiver para ser enviado.
+# ===========================================================================
+
+# As tuas tarefas, aulas, notas…
+dados.json
+dados.json.tmp
+
+# Cópias de segurança e cópias exportadas (contêm as tuas tarefas)
+backups/
+organizador-*.json
+organizador-copia*.json
+*.ics
+
+# Preferências e ficheiros locais da app de PC
+.webdata/
+.venv/
+.claude/
+.organizador.pid
+*.log
+.DS_Store
+__pycache__/

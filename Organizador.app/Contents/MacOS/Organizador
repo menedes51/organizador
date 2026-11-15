@@ -1,10 +1,33 @@
 #!/bin/bash
 # Abre o Organizador numa janela própria (sem browser, sem servidor).
+# Se o ambiente Python (.venv) faltar ou estiver estragado, volta a criá-lo sozinho.
 APPDIR="$(cd "$(dirname "$0")/../.." && pwd)"
 DIR="$(dirname "$APPDIR")"            # pasta onde estão organizador.py e static/
 PY="$DIR/.venv/bin/python"
-if [ ! -x "$PY" ] || [ ! -f "$DIR/organizador.py" ]; then
-  osascript -e 'display alert "Organizador" message "Não encontrei o organizador.py ou a pasta .venv. Mantém o Organizador.app na mesma pasta que o organizador.py."'
+LOG="$DIR/.organizador.log"
+alerta() { osascript -e "display alert \"Organizador\" message \"$1\"" >/dev/null 2>&1; }
+aviso()  { osascript -e "display notification \"$1\" with title \"Organizador\"" >/dev/null 2>&1; }
+
+if [ ! -f "$DIR/organizador.py" ]; then
+  alerta "Não encontrei o organizador.py. Mantém o Organizador.app na mesma pasta que o organizador.py."
   exit 1
 fi
-cd "$DIR" && nohup "$PY" organizador.py > "$DIR/.organizador.log" 2>&1 &
+
+if ! "$PY" -c "import webview" >/dev/null 2>&1; then
+  BASE=""
+  for p in /opt/miniconda3/bin/python3 "$HOME/anaconda3/bin/python3" "$HOME/miniconda3/bin/python3" \
+           /opt/anaconda3/bin/python3 /opt/homebrew/bin/python3 /usr/local/bin/python3 /usr/bin/python3; do
+    [ -x "$p" ] && BASE="$p" && break
+  done
+  if [ -z "$BASE" ]; then
+    alerta "Não encontrei o Python neste Mac. Instala o Python 3 e tenta outra vez."
+    exit 1
+  fi
+  aviso "A preparar a app (só desta vez, 1-2 minutos)…"
+  rm -rf "$DIR/.venv"
+  if ! { "$BASE" -m venv "$DIR/.venv" && "$DIR/.venv/bin/pip" install -q pywebview; } >"$LOG" 2>&1; then
+    alerta "Não consegui preparar a app. Confirma a ligação à internet e tenta outra vez."
+    exit 1
+  fi
+fi
+cd "$DIR" && nohup "$PY" organizador.py > "$LOG" 2>&1 &

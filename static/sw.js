@@ -1,6 +1,6 @@
 /* Organizador — service worker: permite instalar a app e abri-la sem rede. */
-const CACHE = 'organizador-v4.2';
-const ASSETS = ['./', 'index.html', 'styles.css', 'app.js', 'manifest.webmanifest',
+const CACHE = 'organizador-v4.3';
+const ASSETS = ['./', 'index.html', 'styles.css', 'js/01-base.js', 'js/02-vistas.js', 'js/03-paginas.js', 'js/04-interface.js', 'js/05-dados.js', 'js/06-extras.js', 'js/07-arranque.js', 'manifest.webmanifest',
   'icons/icon.svg', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png'];
 
 self.addEventListener('install', e => {

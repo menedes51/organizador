@@ -4,6 +4,45 @@ Todas as mudanças à app ficam registadas aqui, da mais recente para a mais ant
 
 ---
 
+## v4.3 — 15 nov 2026 · Segurança dos dados, cópias automáticas e calendário
+
+### Novo
+- **Cópias de segurança automáticas** (Mais → Cópias de segurança; no PC, menu ⋯):
+  - uma cópia por dia, guardando as últimas 7, mais cópias manuais;
+  - **restaurar** com um toque; antes de restaurar ou importar, é guardada uma cópia do estado atual;
+  - no telemóvel ficam dentro da app; no PC ficam na pasta `backups/`;
+  - opção para pedir ao browser que **não apague** os dados quando falta espaço;
+  - aviso quando passam 14 dias sem guardares uma cópia num ficheiro.
+- **Pôr no calendário do telemóvel/PC (.ics)**: botão **Calendário** no detalhe de cada tarefa ou aula, e "Pôr tudo no calendário" em Mais.
+  - É o calendário do sistema (Google, Apple, Outlook) que toca o alarme, **mesmo com a app fechada**;
+  - os exames avisam na véspera; as aulas vão com repetição semanal e sala.
+- **Partilhar resumo de um trabalho de grupo**: envia por WhatsApp/email a lista de tópicos agrupada por pessoa.
+- **Testes automáticos** (`tests/index.html`): 36 verificações às datas por texto, médias, repetições, validação dos dados, limpeza, segurança e calendário.
+
+### Corrigido
+- **Importar uma cópia é agora seguro**: todos os dados que entram são validados (tipos, datas, horas, cores, tamanhos). Campos desconhecidos e conteúdo perigoso são descartados, e a app diz quantos itens foram ignorados.
+- **Datas impossíveis** (ex.: 31/02, mês 13) já não são aceites. Este erro foi encontrado pelos testes novos.
+- **Média das disciplinas**: as notas sem peso deixam de ser ignoradas em silêncio. Dividem entre si o peso que falta para 100%, e a página da disciplina avisa quando os pesos estão incompletos ou passam de 100%.
+- **Tarefas repetidas**: desmarcar uma tarefa já concluída apaga a repetição que tinha sido criada, em vez de a duplicar.
+- **Itens apagados há mais de 30 dias** são removidos de vez, para os dados não crescerem para sempre (até 30 dias continua a dar para desfazer).
+- **App de PC**:
+  - abrir duas vezes já não falha; traz para a frente a janela que já está aberta;
+  - se a pasta `.venv` faltar ou estiver estragada, o Organizador.app volta a prepará-la sozinho;
+  - se não conseguir ler o `dados.json`, não escreve por cima e sugere restaurar uma cópia.
+- Se a app ficar aberta de um dia para o outro, "Hoje" e as atrasadas atualizam-se à meia-noite.
+
+### Alterado
+- O código da app foi dividido em 7 ficheiros (`static/js/01…07`) em vez de um só com mais de 3000 linhas.
+- **Publicar é mais seguro**: `publicar.sh` só envia o que está numa lista pública. Antes de enviar, verifica que:
+  - nada do `.privado` vai no envio;
+  - nenhum ficheiro tem cara de tarefas tuas;
+  - o `config.h` do ESP32 não tem a palavra-passe do Wi-Fi.
+  Avisa também dos ficheiros novos que não enviou.
+- No detalhe de uma tarefa com lembrete aparece a nota "só toca com a app aberta", que remete para o botão Calendário.
+- Os trabalhos de grupo indicam que ficam só neste dispositivo (a partilha a sério fica para quando houver servidor).
+
+---
+
 ## v4.2.1 — 15 nov 2026 · Projeto completo no GitHub
 
 ### Alterado
