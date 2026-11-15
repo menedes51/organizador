@@ -1,0 +1,10 @@
+#!/bin/bash
+# Abre o Organizador numa janela própria (sem browser, sem servidor).
+APPDIR="$(cd "$(dirname "$0")/../.." && pwd)"
+DIR="$(dirname "$APPDIR")"            # pasta onde estão organizador.py e static/
+PY="$DIR/.venv/bin/python"
+if [ ! -x "$PY" ] || [ ! -f "$DIR/organizador.py" ]; then
+  osascript -e 'display alert "Organizador" message "Não encontrei o organizador.py ou a pasta .venv. Mantém o Organizador.app na mesma pasta que o organizador.py."'
+  exit 1
+fi
+cd "$DIR" && nohup "$PY" organizador.py > "$DIR/.organizador.log" 2>&1 &

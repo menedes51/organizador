@@ -1,0 +1,11 @@
+# Dados pessoais — NUNCA vão para o GitHub
+dados.json
+dados.json.tmp
+
+# Gerados automaticamente / locais
+.venv/
+.webdata/
+.claude/
+__pycache__/
+*.log
+.DS_Store
