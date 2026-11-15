@@ -1,11 +1,14 @@
-# Dados pessoais — NUNCA vão para o GitHub
+# Gerado por publicar.sh a partir de .privado — edita o .privado.
 dados.json
 dados.json.tmp
-
-# Gerados automaticamente / locais
-.venv/
+backups/
+organizador-*.json
+organizador-copia*.json
+*.ics
 .webdata/
+.venv/
 .claude/
-__pycache__/
+.organizador.pid
 *.log
 .DS_Store
+__pycache__/

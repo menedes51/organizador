@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="pt">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Organizador · Testes</title>
+  <link rel="stylesheet" href="../static/styles.css">
+  <style>
+    #report { position: fixed; inset: 0; z-index: 999; overflow: auto; background: #111113; color: #ececef; font: 14px/1.5 -apple-system, Segoe UI, sans-serif; padding: 28px; }
+    #report h1 { font-size: 20px; margin: 0 0 4px; }
+    #report .sum { margin: 0 0 18px; color: #a3a3ab; }
+    #report .ok { color: #3fa877; } #report .fail { color: #e0645a; }
+    #report li { margin: 2px 0; list-style: none; }
+    #report code { background: #202024; padding: 1px 5px; border-radius: 4px; font-size: 12.5px; }
+    #report h2 { font-size: 14px; margin: 16px 0 4px; color: #a3a3ab; text-transform: uppercase; letter-spacing: .05em; }
+  </style>
+  <!-- Os testes usam um armazenamento separado (prefixo "teste."): não mexem nas tuas tarefas. -->
+  <script>window.ORG_TEST = true;</script>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar" id="sidebar"></aside>
+    <div class="main-wrap"><main><div id="top"></div><div id="composer" class="composer"></div><div id="content"></div></main></div>
+  </div>
+  <nav class="tabbar" id="tabbar"></nav>
+  <button class="fab" id="fab"></button>
+  <div class="backdrop" id="backdrop"></div>
+  <section class="detail" id="detail"></section>
+  <div class="toast" id="toast"></div>
+  <meta name="theme-color" content="#111113">
+
+  <script src="../static/js/01-base.js"></script>
+  <script src="../static/js/02-vistas.js"></script>
+  <script src="../static/js/03-paginas.js"></script>
+  <script src="../static/js/04-interface.js"></script>
+  <script src="../static/js/05-dados.js"></script>
+  <script src="../static/js/06-extras.js"></script>
+  <script src="../static/js/07-arranque.js"></script>
+  <script src="testes.js"></script>
+</body>
+</html>
