@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<title>Organizador · Mapa do projeto</title>
+<!-- Fonte da documentação. Para gerar o PDF (no Mac):
+     "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless --no-pdf-header-footer \
+       --print-to-pdf=docs/Documentacao_Organizador.pdf docs/documentacao.html -->
+<style>
+  @page { size: A4; margin: 16mm 15mm 17mm;
+    @bottom-left { content: "Organizador · Mapa do projeto"; font: 8pt Helvetica, Arial, sans-serif; color: #666; }
+    @bottom-right { content: counter(page); font: 8pt Helvetica, Arial, sans-serif; color: #666; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 9.6pt/1.42 Helvetica, Arial, sans-serif; color: #1d1d1f; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .page { break-after: page; }
+  .page:last-child { break-after: auto; }
+  tr { break-inside: avoid; }
+  .band { break-after: avoid; }
+  h2, h3 { break-after: avoid; }
+  .bar { width: 22mm; height: 2.2pt; background: #5b5fd6; margin: 0 0 7mm; }
+  h1 { font-size: 21pt; margin: 0 0 3pt; }
+  h2 { font-size: 15pt; margin: 0 0 6pt; }
+  h3 { font-size: 11pt; margin: 12pt 0 4pt; }
+  p { margin: 0 0 6pt; }
+  .lead { color: #555; font-size: 10.5pt; }
+  code, .mono { font-family: Menlo, Consolas, monospace; font-size: 8.4pt; color: #444; }
+  table { width: 100%; border-collapse: collapse; margin: 0 0 8pt; }
+  th { text-align: left; font-size: 8.8pt; padding: 4pt 6pt; border-bottom: 1.2pt solid #555; background: #f2f2f4; }
+  td { padding: 4pt 6pt; border-bottom: .6pt solid #ddd; vertical-align: top; font-size: 9pt; }
+  td:first-child { width: 31%; }
+  .gl td:first-child { width: 22%; font-weight: bold; }
+  .band { color: #fff; font-weight: bold; padding: 5pt 7pt; font-size: 9.6pt; }
+  .band small { font-weight: normal; opacity: .9; margin-left: 4pt; }
+  .c-app { background: #5b5fd6; } .c-pc { background: #2e8b67; } .c-srv { background: #c8734f; }
+  .c-dados { background: #8b5bd6; } .c-gh { background: #3f7fd6; } .c-q { background: #b38a2c; }
+  .new { display: inline-block; font-size: 6.8pt; font-weight: bold; color: #fff; background: #d0533f; border-radius: 3pt; padding: 0 3pt; margin-left: 3pt; vertical-align: 1pt; }
+  .note { font-size: 8.6pt; color: #666; }
+  .box { border: .8pt solid #ddd; border-radius: 6pt; padding: 7pt 9pt; margin: 6pt 0 9pt; background: #fafafa; }
+  .box.warn { border-color: #e2b25a; background: #fdf6e8; }
+  .keep { break-inside: avoid; }
+  /* mapa */
+  .map { position: relative; height: 150mm; margin: 14mm 0 6mm; }
+  .card { position: absolute; width: 64mm; border: .8pt solid; border-radius: 6pt; overflow: hidden; background: #fff; }
+  .card .band { border-radius: 0; }
+  .card ul { margin: 0; padding: 5pt 8pt 6pt 16pt; font-size: 8.4pt; }
+  .card li { margin: 2.2pt 0; }
+  .card li b { font-size: 8.6pt; }
+  .card li span { color: #555; }
+  .hub { position: absolute; left: 68mm; top: 61mm; width: 44mm; height: 24mm; border-radius: 8pt; background: #1d1d1f; color: #fff; text-align: center; padding-top: 4.5mm; }
+  .hub b { font-size: 14pt; display: block; } .hub span { font-size: 7.4pt; color: #bbb; }
+  /* diagrama */
+  .flow { width: 100%; height: auto; margin: 4pt 0 8pt; }
+</style>
+</head>
+<body>
+
+<!-- ============================================================ 1 · mapa -->
+<section class="page">
+  <div class="bar"></div>
+  <h1>O meu projeto: Organizador</h1>
+  <p class="lead">Documentação pessoal — um mapa do que é cada parte do código, para que serve, como tudo se liga e as palavras importantes que aprendi pelo caminho. Estado em 15 nov 2026: app <b>v4.4.1</b>, servidor <b>0.3-beta</b>.</p>
+
+  <div class="map">
+    <svg style="position:absolute;inset:0;width:100%;height:100%" viewBox="0 0 180 150" preserveAspectRatio="none">
+      <g fill="none" stroke-width=".5">
+        <path d="M64 22 C70 22 68 66 70 70" stroke="#5b5fd6"/>
+        <path d="M64 70 C67 70 67 72 68 72" stroke="#2e8b67"/>
+        <path d="M64 118 C70 118 68 80 70 80" stroke="#c8734f"/>
+        <path d="M116 22 C110 22 112 66 110 70" stroke="#8b5bd6"/>
+        <path d="M116 70 C113 70 113 72 112 72" stroke="#3f7fd6"/>
+        <path d="M116 118 C110 118 112 80 110 80" stroke="#b38a2c"/>
+      </g>
+    </svg>
+    <div class="card" style="left:0;top:0;border-color:#5b5fd6"><div class="band c-app">A APP · static/</div><ul>
+      <li><b>index.html</b> <span>o esqueleto da página</span></li>
+      <li><b>styles.css</b> <span>o aspeto: cores, temas</span></li>
+      <li><b>js/01…08</b> <span>a lógica, em 8 ficheiros</span></li>
+      <li><b>sw.js</b> <span>funciona sem internet</span></li>
+      <li><b>manifest</b> <span>deixa instalar no telemóvel</span></li></ul></div>
+    <div class="card" style="left:0;top:52mm;border-color:#2e8b67"><div class="band c-pc">APP DE PC · Mac</div><ul>
+      <li><b>organizador.py</b> <span>abre a app numa janela</span></li>
+      <li><b>Organizador.app</b> <span>ícone de duplo clique</span></li>
+      <li><b>.venv</b> <span>o Python só da app</span></li>
+      <li><b>dados.json</b> <span>as minhas tarefas (privado)</span></li></ul></div>
+    <div class="card" style="left:0;top:100mm;border-color:#c8734f"><div class="band c-srv">SERVIDOR · esp32/</div><ul>
+      <li><b>ESP8266</b> <span>a placa com Wi-Fi e ecrã</span></li>
+      <li><b>…servidor.ino</b> <span>contas, login e dados</span></li>
+      <li><b>config.h</b> <span>o Wi-Fi (nunca no GitHub)</span></li>
+      <li><b>ecra.h</b> <span>o que aparece no OLED</span></li></ul></div>
+    <div class="hub"><b>Organizador</b><span>tarefas · aulas · grupo</span></div>
+    <div class="card" style="right:0;top:2mm;border-color:#8b5bd6"><div class="band c-dados">OS DADOS</div><ul>
+      <li><b>8 coleções</b> <span>tarefas, aulas, notas…</span></li>
+      <li><b>updatedAt</b> <span>a hora de cada mudança</span></li>
+      <li><b>cópias</b> <span>1 por dia, guardo 7</span></li>
+      <li><b>sincronizar</b> <span>junta item a item</span></li>
+      <li><b>conta</b> <span>as tarefas também na placa</span></li></ul></div>
+    <div class="card" style="right:0;top:52mm;border-color:#3f7fd6"><div class="band c-gh">GITHUB</div><ul>
+      <li><b>repositório</b> <span>menedes51/organizador</span></li>
+      <li><b>PR → merge</b> <span>como entra no main</span></li>
+      <li><b>Actions + Pages</b> <span>publica o site sozinho</span></li>
+      <li><b>publicar.sh</b> <span>envio com verificações</span></li></ul></div>
+    <div class="card" style="right:0;top:100mm;border-color:#b38a2c"><div class="band c-q">QUALIDADE E REGRAS</div><ul>
+      <li><b>tests/</b> <span>42 testes no browser</span></li>
+      <li><b>CHANGELOG</b> <span>tudo o que mudou</span></li>
+      <li><b>README · docs/</b> <span>como usar · este documento</span></li>
+      <li><b>.privado</b> <span>o que nunca vai para o GitHub</span></li></ul></div>
+  </div>
+  <p class="note"><b>Como ler este documento:</b> o mapa mostra as 6 partes do projeto. As páginas seguintes explicam: como tudo se liga, ficheiro a ficheiro, como funcionam as peças mais importantes, a segurança e o estado da placa, o que fazer quando algo corre mal, um glossário e as minhas rotinas. O que é novo nesta versão do documento está marcado com <span class="new">NOVO</span>.</p>
+</section>
+
+<!-- ============================================================ 2 · como tudo se liga -->
+<section class="page">
+  <div class="bar"></div>
+  <h2>1 · Como tudo se liga</h2>
+  <p>Escrevo o código no Mac. Guardo as alterações com o Git e envio-as para o GitHub num <b>ramo</b>; quando estão prontas, abro um <b>PR</b> e faço <b>merge</b> no <b>main</b>. A partir daí o GitHub publica o site sozinho, e o telemóvel recebe a versão nova na próxima vez que abro a app com internet. A app de PC usa exatamente os mesmos ficheiros da pasta <b>static/</b>, mas guarda as tarefas num ficheiro. O servidor na placa ESP8266 guarda as contas e serve para sincronizar os dispositivos. A placa é programada a partir do <b>PC Windows</b>, pela USB.</p>
+
+  <svg class="flow" viewBox="0 0 180 104" font-family="Helvetica, Arial, sans-serif">
+    <defs><marker id="ar" viewBox="0 0 6 6" refX="5" refY="3" markerWidth="4" markerHeight="4" orient="auto"><path d="M0 0L6 3L0 6z" fill="#666"/></marker>
+      <marker id="ao" viewBox="0 0 6 6" refX="5" refY="3" markerWidth="4" markerHeight="4" orient="auto"><path d="M0 0L6 3L0 6z" fill="#c8734f"/></marker></defs>
+    <g font-size="3.1" text-anchor="middle">
+      <rect x="1" y="2" width="36" height="16" rx="2" fill="#f7f1e6" stroke="#b38a2c" stroke-width=".4"/><text x="19" y="8" font-weight="bold" font-size="3.4">Eu, no Mac</text><text x="19" y="12" fill="#666">edito o código</text><text x="19" y="15.5" fill="#666">com o Claude</text>
+      <rect x="48" y="2" width="36" height="16" rx="2" fill="#eaf1fb" stroke="#3f7fd6" stroke-width=".4"/><text x="66" y="8" font-weight="bold" font-size="3.4">Git (local)</text><text x="66" y="12" fill="#666">commit num ramo</text><text x="66" y="15.5" fill="#666">(branch)</text>
+      <rect x="95" y="2" width="36" height="16" rx="2" fill="#eaf1fb" stroke="#3f7fd6" stroke-width=".4"/><text x="113" y="8" font-weight="bold" font-size="3.4">GitHub</text><text x="113" y="12" fill="#666">repositório público</text><text x="113" y="15.5" fill="#666">PR → merge no main</text>
+      <rect x="142" y="2" width="37" height="16" rx="2" fill="#eaf1fb" stroke="#3f7fd6" stroke-width=".4"/><text x="160.5" y="8" font-weight="bold" font-size="3.4">GitHub Pages</text><text x="160.5" y="12" fill="#666">site publicado (https)</text><text x="160.5" y="15.5" fill="#666">pelo Actions</text>
+      <rect x="55" y="44" width="40" height="16" rx="2" fill="#e8f4ee" stroke="#2e8b67" stroke-width=".4"/><text x="75" y="50" font-weight="bold" font-size="3.4">App de PC (Mac)</text><text x="75" y="54" fill="#666">organizador.py abre static/</text><text x="75" y="57.5" fill="#666">dados em dados.json</text>
+      <rect x="139" y="44" width="40" height="16" rx="2" fill="#efeffb" stroke="#5b5fd6" stroke-width=".4"/><text x="159" y="50" font-weight="bold" font-size="3.4">Telemóvel</text><text x="159" y="54" fill="#666">app instalada (PWA)</text><text x="159" y="57.5" fill="#666">dados no telemóvel</text>
+      <rect x="1" y="82" width="36" height="17" rx="2" fill="#f3eefb" stroke="#8b5bd6" stroke-width=".4"/><text x="19" y="88" font-weight="bold" font-size="3.4">Cópias de segurança</text><text x="19" y="92" fill="#666">backups/ (PC)</text><text x="19" y="95.5" fill="#666">IndexedDB (telemóvel)</text>
+      <rect x="80" y="82" width="46" height="17" rx="2" fill="#fbf0ea" stroke="#c8734f" stroke-width=".4"/><text x="103" y="88" font-weight="bold" font-size="3.4">Servidor ESP8266</text><text x="103" y="92" fill="#666">contas + dados de cada conta</text><text x="103" y="95.5" fill="#666">http://organizador.local</text>
+      <rect x="140" y="82" width="38" height="17" rx="2" fill="#f4f4f4" stroke="#888" stroke-width=".4"/><text x="159" y="88" font-weight="bold" font-size="3.4">PC Windows</text><text x="159" y="92" fill="#666">arduino-cli + config.h</text><text x="159" y="95.5" fill="#666">carrega a placa (USB)</text>
+    </g>
+    <g stroke="#666" stroke-width=".35" fill="none" marker-end="url(#ar)">
+      <path d="M37 10H47"/><path d="M84 10H94"/><path d="M131 10H141"/><path d="M160 18V43"/><path d="M19 18L60 43"/><path d="M140 90.5H127"/>
+    </g>
+    <path d="M80 60L97 81" stroke="#c8734f" stroke-width=".45" fill="none" marker-end="url(#ao)"/>
+    <path d="M150 60L112 81" stroke="#c8734f" stroke-width=".45" stroke-dasharray="1.6 1" fill="none" marker-end="url(#ao)"/>
+    <g font-size="2.6" fill="#666" text-anchor="middle">
+      <text x="42" y="8.5">guardo</text><text x="89" y="8.5">push</text><text x="136" y="8.5">deploy</text>
+      <text x="157" y="30" text-anchor="end">descarrega</text><text x="157" y="33" text-anchor="end">e guarda em cache</text>
+      <text x="35" y="31" text-anchor="end">usa os mesmos ficheiros</text>
+      <text x="86" y="71" text-anchor="end">sincroniza (HTTP)</text>
+      <text x="141" y="69" fill="#c8734f" text-anchor="start">bloqueado: o site é https</text><text x="141" y="72" fill="#c8734f" text-anchor="start">e a placa http (falta o túnel)</text>
+      <text x="133.5" y="88.5">USB</text>
+    </g>
+  </svg>
+
+  <h3>As 3 versões da app</h3>
+  <table>
+    <tr><th>Onde</th><th>Como abro</th><th>Onde ficam as tarefas</th><th>Atualiza como</th></tr>
+    <tr><td>Telemóvel / browser</td><td>ícone instalado (PWA) ou o site</td><td>no próprio telemóvel (localStorage)</td><td>sozinha, ao abrir com internet</td></tr>
+    <tr><td>App de PC (Mac)</td><td>duplo clique em Organizador.app</td><td>no ficheiro <code>dados.json</code></td><td>usa a pasta static/ do Mac</td></tr>
+    <tr><td>Servidor (opcional)</td><td>Mais → Conta e sincronização</td><td>na placa, por conta (LittleFS)</td><td>carrego o código pela USB, a partir do PC Windows</td></tr>
+  </table>
+  <p class="note">Sem conta, cada dispositivo é independente (passo tarefas com Exportar/Importar). Com conta, a app junta os dados de todos os dispositivos através do servidor. Hoje isto funciona na app de PC (conta <b>menedes51</b>, desde 15 nov 2026); no telemóvel falta o HTTPS.</p>
+</section>
+
+<!-- ============================================================ 3 · ficheiros -->
+<section class="page">
+  <div class="bar"></div>
+  <h2>2 · O que é cada ficheiro</h2>
+  <div class="band c-app">A app — pasta static/<small>é isto que vai para o site</small></div>
+  <table>
+    <tr><th>Ficheiro</th><th>Para que serve</th></tr>
+    <tr><td><code>index.html</code></td><td>O esqueleto: zonas vazias (barra lateral, conteúdo, painel de detalhe…) que o JavaScript preenche. Carrega os 8 ficheiros JS por ordem.</td></tr>
+    <tr><td><code>styles.css</code></td><td>Todo o aspeto: cores, os 9 temas, tamanhos, animações, e as regras para o telemóvel (ecrã estreito).</td></tr>
+    <tr><td><code>js/01-base.js</code></td><td>A base: funções úteis (datas, ícones), o modelo dos dados, a <b>validação</b> de tudo o que entra, disciplinas, notas e médias, criar/concluir/apagar tarefas, eventos e aulas.</td></tr>
+    <tr><td><code>js/02-vistas.js</code></td><td>Desenha as tarefas e as páginas: Hoje, Próximos, Calendário (Dia/Semana/Mês/Horário), Listas, Procurar.</td></tr>
+    <tr><td><code>js/03-paginas.js</code></td><td>A caixa de adicionar tarefas, os formulários, as páginas de Disciplinas, Trabalhos de grupo e Aparência, e as <b>datas por texto</b> ("amanhã 14h").</td></tr>
+    <tr><td><code>js/04-interface.js</code></td><td>Menus, diálogos, o painel de detalhe de uma tarefa/aula, a navegação (botão voltar, histórico) e o que acontece em cada clique.</td></tr>
+    <tr><td><code>js/05-dados.js</code></td><td>Exportar/importar cópias, <b>cópias de segurança</b> automáticas, exportar para o calendário (.ics), partilhar resumos, e a ligação à app de PC.</td></tr>
+    <tr><td><code>js/06-extras.js</code></td><td>Lembretes, arrastar no calendário, instalar a app, temporizador Foco, Estatísticas, gestos no telemóvel e boas-vindas.</td></tr>
+    <tr><td><code>js/07-conta.js</code></td><td>O ecrã <b>Conta</b> (criar conta, entrar, sair, testar ligação) e a <b>sincronização</b> com o servidor (ler, juntar, enviar).</td></tr>
+    <tr><td><code>js/08-arranque.js</code></td><td>Arranca tudo: aplica o tema, carrega os dados, desenha a primeira página e liga a sincronização.</td></tr>
+    <tr><td><code>sw.js</code></td><td><b>Service worker</b>: guarda os ficheiros da app em cache, para abrir sem internet; mostra as notificações.</td></tr>
+    <tr><td><code>manifest.webmanifest</code></td><td>Nome, ícones e atalhos da app — é o que permite instalá-la no telemóvel como se fosse uma app normal.</td></tr>
+    <tr><td><code>icons/</code></td><td>Os ícones da app (PNG e SVG).</td></tr>
+  </table>
+  <div class="band c-pc">App de PC — raiz do projeto<small>só no Mac</small></div>
+  <table>
+    <tr><th>Ficheiro</th><th>Para que serve</th></tr>
+    <tr><td><code>organizador.py</code></td><td>Programa em Python que abre a pasta static/ numa janela própria (com o <b>pywebview</b>). Lê e grava o <code>dados.json</code>, faz as cópias em <code>backups/</code>, mostra notificações do macOS e faz pedidos ao servidor só se a janela não conseguir (plano B).</td></tr>
+    <tr><td><code>Organizador.app</code></td><td>O ícone para duplo clique. É só um pequeno script que prepara o Python (se faltar) e abre o organizador.py; se a app já estiver aberta, traz a janela para a frente.</td></tr>
+    <tr><td><code>.venv/</code></td><td>Um Python só para esta app, com o pywebview instalado. Não vai para o GitHub.</td></tr>
+    <tr><td><code>dados.json, backups/</code></td><td>As minhas tarefas e as cópias de segurança. <b>Privados: nunca vão para o GitHub.</b> <span class="new">NOVO</span> Com a conta ativa, as tarefas também ficam guardadas na placa (passam pela rede de casa, por agora sem cifra).</td></tr>
+  </table>
+</section>
+
+<!-- ============================================================ 4 · servidor + projeto -->
+<section class="page">
+  <div class="bar"></div>
+  <div class="band c-srv">Servidor — pasta esp32/<small>o nome é histórico: serve ESP8266 e ESP32</small></div>
+  <table>
+    <tr><th>Ficheiro</th><th>Para que serve</th></tr>
+    <tr><td><code>organizador_servidor.ino</code></td><td>O programa da placa (<b>sketch</b> do Arduino): liga ao Wi-Fi, guarda contas e dados na memória da placa (LittleFS) e responde aos pedidos da app.</td></tr>
+    <tr><td><code>config.h</code></td><td>O nome e a palavra-passe do Wi-Fi, e o limite de dados por conta (200 KB). No GitHub fica só com valores de exemplo; a palavra-passe verdadeira fica só no PC Windows que carrega a placa.</td></tr>
+    <tr><td><code>ecra.h</code></td><td>O que aparece no ecrã OLED: endereço IP, sinal Wi-Fi, contas, pedidos, espaço e memória livres, última ação.</td></tr>
+    <tr><td><code>Guia_Servidor.pdf</code></td><td>O guia passo a passo para preparar o PC e carregar o servidor na placa.</td></tr>
+  </table>
+  <div class="band c-q">Projeto, testes e publicação</div>
+  <table>
+    <tr><th>Ficheiro</th><th>Para que serve</th></tr>
+    <tr><td><code>tests/</code></td><td>42 testes automáticos que correm no browser (datas por texto, médias, repetições, validação, sincronização…). Usam um armazenamento à parte, sem mexer nas minhas tarefas.</td></tr>
+    <tr><td><code>CHANGELOG.md</code></td><td>O registo de tudo o que mudou, versão a versão (regra: cada alteração leva uma entrada).</td></tr>
+    <tr><td><code>README.md</code></td><td>A página de entrada do repositório: o que é o projeto, a estrutura e como testar e publicar.</td></tr>
+    <tr><td><code>docs/</code> <span class="new">NOVO</span></td><td>Este documento: <code>Documentacao_Organizador.pdf</code> e a fonte <code>documentacao.html</code> (edita-se o HTML e gera-se o PDF com o Chrome; o comando está no topo do ficheiro).</td></tr>
+    <tr><td><code>publicar.sh</code></td><td>Envia o projeto para o GitHub, mas só o que está na lista pública, e recusa se for algo privado ou a palavra-passe do Wi-Fi.</td></tr>
+    <tr><td><code>.privado, .gitignore</code></td><td>A lista do que nunca vai para o GitHub (o .gitignore é gerado a partir do .privado).</td></tr>
+    <tr><td><code>.github/workflows/pages.yml</code></td><td>A receita do <b>GitHub Actions</b>: sempre que o main muda, publica a pasta static/ no GitHub Pages.</td></tr>
+    <tr><td><code>qrcode-organizador.png</code></td><td>QR code para instalar a app.</td></tr>
+  </table>
+
+  <h2 style="margin-top:14pt">3 · Como funcionam as peças importantes</h2>
+  <h3>Os dados</h3>
+  <p>Tudo o que guardo está em <b>8 coleções</b> (listas de itens): <code>tasks</code>, <code>lists</code>, <code>categories</code>, <code>events</code>, <code>focus</code>, <code>subjects</code>, <code>projects</code>, <code>grades</code>. Cada item tem um <code>id</code> (identificador único) e um <code>updatedAt</code> (a hora da última mudança). Quando apago algo, o item não desaparece logo: fica marcado <code>deleted</code> (dá para desfazer e para os outros dispositivos saberem que foi apagado) e só é removido de vez ao fim de 30 dias.</p>
+  <p>Antes de entrar na app, qualquer dado (de um ficheiro importado, de uma cópia ou do servidor) passa pela <b>validação</b> (<code>sanitizeDb</code>): ficam só os campos conhecidos, com o tipo certo — datas impossíveis, cores estranhas ou texto perigoso são descartados.</p>
+</section>
+
+<!-- ============================================================ 5 · sincronização + API -->
+<section class="page">
+  <div class="bar"></div>
+  <h3 style="margin-top:0">A sincronização</h3>
+  <table>
+    <tr><th style="width:14%">Passo</th><th>O que acontece</th></tr>
+    <tr><td>1. Ler</td><td>A app pede ao servidor os dados da minha conta (<code>GET /api/data</code>).</td></tr>
+    <tr><td>2. Juntar</td><td>Junta-os com os do dispositivo, item a item: quando o mesmo item mudou nos dois sítios, fica o que tem o <b>updatedAt</b> mais recente.</td></tr>
+    <tr><td>3. Enviar</td><td>Se houver algo novo, envia o resultado (<code>PUT /api/data</code>). O servidor substitui tudo, por isso a junção é sempre feita na app. Se nada mudou, não envia (poupa a memória da placa).</td></tr>
+    <tr><td>Quando</td><td>Ao abrir a app, uns segundos depois de cada alteração, a cada 5 minutos e ao voltar à app. Antes da primeira vez é feita uma cópia de segurança ("Antes de sincronizar"). O ícone da nuvem mostra o estado.</td></tr>
+  </table>
+  <div class="box keep"><b>O que convém saber</b> <span class="new">NOVO</span>
+    <ul style="margin:4pt 0 0;padding-left:14pt">
+      <li>Se dois dispositivos mudarem <b>a mesma tarefa</b>, fica só a mudança mais recente ("a última alteração ganha"). Se mudarem tarefas diferentes, ficam as duas.</li>
+      <li>Se dois dispositivos sincronizarem ao mesmo tempo, nada se perde: cada um guarda os seus dados e volta a juntá-los na sincronização seguinte.</li>
+      <li>Um dispositivo que fique <b>mais de 30 dias</b> sem sincronizar pode fazer reaparecer coisas que foram apagadas noutro (as marcas de apagado já foram limpas).</li>
+      <li>Limite: <b>200 KB</b> de dados por conta (a app avisa se passar).</li>
+      <li><b>Sair da conta não apaga</b> as tarefas do dispositivo; só deixam de ser sincronizadas.</li>
+      <li>Se a sessão deixar de valer, a app avisa ("A sessão terminou") e basta entrar outra vez.</li>
+      <li>Na app de PC, os pedidos vão pela janela (WebKit) e, se falharem, pelo Python. Porquê: o macOS pode bloquear o Python na rede local (ver "Quando algo corre mal").</li>
+    </ul></div>
+
+  <h3>O servidor (as rotas da API)</h3>
+  <p>O servidor é uma pequena <b>API</b>: a app fala com ele por <b>HTTP</b>, pedindo endereços (rotas) e recebendo respostas em <b>JSON</b>.</p>
+  <table>
+    <tr><th>Rota</th><th>O que faz</th></tr>
+    <tr><td><code>GET /</code></td><td>A página de teste, para experimentar sem a app.</td></tr>
+    <tr><td><code>GET /api/ping</code></td><td>"Estás vivo?" — versão, número de contas, espaço livre, tempo ligado, pedidos.</td></tr>
+    <tr><td><code>POST /api/register</code></td><td>Criar conta. A palavra-passe é guardada como <b>hash com salt</b>, nunca em texto.</td></tr>
+    <tr><td><code>POST /api/login</code></td><td>Entrar. Se a palavra-passe estiver certa, devolve um <b>token</b> (a "chave" da sessão).</td></tr>
+    <tr><td><code>POST /api/logout</code></td><td>Sair: o token deixa de valer.</td></tr>
+    <tr><td><code>GET / PUT /api/data</code></td><td>Ler / gravar os dados da conta. Só funciona com o token no pedido (cabeçalho Authorization). Responde 401 se o token não valer.</td></tr>
+  </table>
+</section>
+
+<!-- ============================================================ 6 · segurança, placa, problemas -->
+<section class="page">
+  <div class="bar"></div>
+  <h2>4 · Segurança e estado da placa</h2>
+  <table>
+    <tr><th style="width:50%">Já está</th><th>Ainda falta (antes de haver colegas a usar)</th></tr>
+    <tr><td>Palavras-passe com hash + salt · validação de todos os dados (também os que vêm do servidor) · a palavra-passe do Wi-Fi e as tarefas nunca vão para o GitHub · cópias de segurança automáticas · cópia antes da primeira sincronização</td>
+        <td>HTTPS (hoje tudo passa sem cifra na rede) · tokens que expiram (hoje <b>não expiram</b> e acumulam-se no <code>/tokens.json</code>) · limite de tentativas de login · apagar conta e mudar palavra-passe · túnel para usar fora de casa e no telemóvel</td></tr>
+  </table>
+
+  <h3>Estado da placa (15 nov 2026) <span class="new">NOVO</span></h3>
+  <table>
+    <tr><th>O quê</th><th>Estado</th></tr>
+    <tr><td>Placa</td><td>ESP8266 ideaspark com OLED, servidor <b>0.3-beta</b>, ligada ao Wi-Fi de 2,4 GHz de casa.</td></tr>
+    <tr><td>Endereço</td><td><code>http://organizador.local</code> ou <code>http://192.168.0.109</code>. O IP <b>ainda não está reservado no router</b> e pode mudar: o IP atual aparece sempre no ecrã da placa.</td></tr>
+    <tr><td>Contas</td><td>4 contas: <b>menedes51</b> (a minha, criada a 15 nov 2026 e já sincronizada com a app de PC), <b>teste1</b> e <b>teste2</b> (de teste) e uma 4.ª de que não sei a origem.</td></tr>
+    <tr><td>Antes de chegarem colegas</td><td>Apagar as contas de teste. Hoje não há "apagar conta": é preciso formatar o LittleFS, o que <b>apaga todas as contas e dados</b> (incluindo a minha; volto a entrar e a app reenvia as tarefas).</td></tr>
+    <tr><td>Memória</td><td>~25 KB de RAM livre; as listas de contas e de sessões são lidas inteiras de cada vez — chega para poucos utilizadores.</td></tr>
+  </table>
+
+</section>
+
+<section class="page">
+  <div class="bar"></div>
+  <h2>5 · Quando algo corre mal <span class="new">NOVO</span></h2>
+  <table>
+    <tr><th>Sintoma</th><th>Causa / o que fazer</th></tr>
+    <tr><td>"Não consegui ligar ao servidor"</td><td>Ver a linha <b>Servidor</b> no ecrã Conta: tem de ser <code>organizador.local</code> ou o IP da placa — <b>não o meu nome</b> (aconteceu no primeiro teste). Confirmar que estou no Wi-Fi de casa e que a placa está ligada; se o IP mudou, vê-lo no ecrã da placa.</td></tr>
+    <tr><td>No telemóvel, o ecrã Conta mostra o aviso de HTTPS</td><td>É normal por agora: o site é https e a placa é http, e o browser bloqueia a mistura ("conteúdo misto"). Escrever o IP não resolve. Falta o túnel HTTPS.</td></tr>
+    <tr><td>"A sessão terminou. Entra outra vez."</td><td>O token deixou de valer (ex.: a placa foi formatada). Entrar de novo; as tarefas do dispositivo não se perdem.</td></tr>
+    <tr><td>"Não sincronizado: …" / nuvem vermelha</td><td>Ler a mensagem no ecrã Conta e carregar em <b>Sincronizar agora</b>. Sem rede, a app tenta outra vez sozinha.</td></tr>
+    <tr><td>A app mostra a versão antiga</td><td>Telemóvel: abrir com internet, fechar e voltar a abrir (versão em Mais). PC: fechar a janela e abrir o Organizador.app outra vez.</td></tr>
+    <tr><td>O Python não chega à placa, mas o browser e o <code>curl</code> chegam</td><td>Permissão <b>Rede local</b> do macOS (Definições → Privacidade e segurança → Rede local). A app já contorna isto pedindo pela janela.</td></tr>
+    <tr><td>Os testes mostram resultados antigos</td><td>O browser usou ficheiros em cache: recarregar a página "à força" (Cmd+Shift+R).</td></tr>
+    <tr><td>A app de PC não abre</td><td>O Organizador.app volta a preparar a <code>.venv</code> sozinho; se continuar, correr <code>.venv/bin/python organizador.py</code> no Terminal e ler o erro.</td></tr>
+    <tr><td>No Windows, a compilação falha com <code>CreateProcess</code></td><td>Usar uma pasta de compilação curta: <code>--build-path C:\esp8266build</code>.</td></tr>
+    <tr><td>A placa não liga ao Wi-Fi</td><td>Só funciona com redes de <b>2,4 GHz</b>. Ela continua a tentar a cada 10 s; o ecrã mostra "Sem Wi-Fi!".</td></tr>
+  </table>
+</section>
+
+<!-- ============================================================ 7 · glossário (1) -->
+<section class="flow-on">
+  <div class="bar"></div>
+  <h2>6 · Glossário — as palavras que uso</h2>
+  <div class="band c-gh">Git e GitHub</div>
+  <table class="gl">
+    <tr><td>Git</td><td>Programa que guarda o histórico de todas as versões do código. Posso sempre voltar atrás.</td></tr>
+    <tr><td>Repositório (repo)</td><td>A pasta do projeto com todo o seu histórico. O meu está no GitHub: menedes51/organizador (público).</td></tr>
+    <tr><td>Commit</td><td>Uma "fotografia" guardada das alterações, com uma mensagem a explicar o que mudou.</td></tr>
+    <tr><td>Branch (ramo)</td><td>Uma linha de trabalho separada. Trabalho num ramo para não estragar a versão principal enquanto testo.</td></tr>
+    <tr><td>main</td><td>O ramo principal: a versão "oficial". O que está no main é o que o site publica.</td></tr>
+    <tr><td>Push / Pull</td><td>Push: enviar os meus commits para o GitHub. Pull: trazer do GitHub o que mudou noutro computador.</td></tr>
+    <tr><td>PR (Pull Request)</td><td>Um pedido para juntar um ramo ao main. Serve para rever as alterações (e ver as diferenças) antes de as aceitar.</td></tr>
+    <tr><td>Merge</td><td>Juntar um ramo noutro — por exemplo, aceitar um PR e pôr as alterações no main.</td></tr>
+    <tr><td>Conflito</td><td>Quando dois ramos mudaram a mesma linha. Tem de ser resolvido à mão, escolhendo o que fica (ex.: duas entradas no topo do CHANGELOG).</td></tr>
+    <tr><td>.gitignore</td><td>Lista de ficheiros que o Git ignora (no meu caso, gerada a partir do .privado).</td></tr>
+    <tr><td>GitHub Actions</td><td>Tarefas automáticas no GitHub. A minha publica o site sempre que o main muda.</td></tr>
+    <tr><td>GitHub Pages</td><td>Alojamento grátis de sites do GitHub. É onde vive a app: menedes51.github.io/organizador.</td></tr>
+  </table>
+  <div class="band c-app">Web e app</div>
+  <table class="gl">
+    <tr><td>HTML · CSS · JavaScript</td><td>As 3 linguagens da web: estrutura da página · aspeto · comportamento (a lógica).</td></tr>
+    <tr><td>PWA</td><td>Progressive Web App: um site que se instala como app (ícone, ecrã inteiro, funciona sem internet).</td></tr>
+    <tr><td>Service worker</td><td>Um script que corre em segundo plano no browser: guarda a app em cache e trata das notificações.</td></tr>
+    <tr><td>Cache</td><td>Cópia guardada dos ficheiros, para abrir mais depressa e sem internet.</td></tr>
+    <tr><td>localStorage / IndexedDB</td><td>Dois sítios para guardar dados dentro do browser. localStorage: as tarefas e a sessão da conta. IndexedDB: as cópias de segurança.</td></tr>
+    <tr><td>JSON</td><td>Formato de texto para dados (<code>{"titulo": "Estudar", "feito": false}</code>). É como guardo e envio tudo.</td></tr>
+    <tr><td>API · rota · endpoint</td><td>API: a forma de um programa falar com outro. Cada endereço (/api/login…) é uma rota ou endpoint.</td></tr>
+    <tr><td>HTTP · GET/POST/PUT</td><td>A linguagem dos pedidos na web. GET = ler, POST = enviar uma ação, PUT = gravar/substituir.</td></tr>
+    <tr><td>Código de estado</td><td>O número na resposta: 200 = correu bem, 401 = sem sessão válida, 404 = não existe, 409 = já existe (ex.: nome de conta repetido).</td></tr>
+    <tr><td>HTTPS</td><td>HTTP cifrado (o cadeado). O site usa; a placa ainda não — por isso o telemóvel não lhe consegue ligar.</td></tr>
+    <tr><td>Conteúdo misto <span class="new">NOVO</span></td><td>Quando uma página https tenta falar com um servidor http. O browser bloqueia, para proteger a ligação segura. É o que impede o telemóvel de usar a placa.</td></tr>
+    <tr><td>Origem (origin) <span class="new">NOVO</span></td><td>Protocolo + endereço + porta de uma página (ex.: <code>https://menedes51.github.io</code>). Cada origem tem os seus próprios dados guardados.</td></tr>
+    <tr><td>CORS</td><td>Regra dos browsers sobre que origens podem falar com que servidores. O meu servidor autoriza a app.</td></tr>
+    <tr><td>.ics</td><td>Formato de ficheiro de calendário, que abre no Google Calendar, no Calendário da Apple ou no Outlook.</td></tr>
+  </table>
+</section>
+
+<!-- ============================================================ 8 · glossário (2) -->
+<section class="flow-on">
+  <div class="band c-dados">Dados e sincronização <span class="new">NOVO</span></div>
+  <table class="gl">
+    <tr><td>Sincronizar</td><td>Pôr dois sítios com os mesmos dados (o dispositivo e o servidor).</td></tr>
+    <tr><td>Fusão (merge de dados)</td><td>Juntar duas versões dos dados numa só, item a item.</td></tr>
+    <tr><td>"A última alteração ganha"</td><td>(last-write-wins) Regra de fusão: quando o mesmo item mudou em dois sítios, fica o que tem o <code>updatedAt</code> mais recente.</td></tr>
+    <tr><td>Marca de apagado</td><td>(tombstone) O <code>deleted: true</code> que fica num item apagado, para os outros dispositivos também o apagarem.</td></tr>
+    <tr><td>Impressão digital</td><td>(fingerprint) Um resumo dos dados (id + hora de cada item) que a app compara para saber se há alguma coisa nova a enviar.</td></tr>
+    <tr><td>Servidor de imitação</td><td>(mock) Um servidor falso, com as mesmas rotas, para testar a app sem mexer na placa verdadeira.</td></tr>
+    <tr><td>Tempo esgotado</td><td>(timeout) Quando um pedido demora demais (10 s na app) e é dado como falhado.</td></tr>
+  </table>
+  <div class="band c-srv">Hardware e servidor</div>
+  <table class="gl">
+    <tr><td>ESP8266 / ESP32</td><td>Microcontroladores baratos com Wi-Fi — pequenos computadores numa placa. Uso a ESP8266 ideaspark com ecrã OLED.</td></tr>
+    <tr><td>Arduino IDE · arduino-cli</td><td>Programa (com janela / pela linha de comandos) para escrever, compilar e enviar código para a placa.</td></tr>
+    <tr><td>Sketch (.ino)</td><td>O programa da placa, no formato do Arduino.</td></tr>
+    <tr><td>Compilar · upload</td><td>Compilar: traduzir o código para a linguagem da placa. Upload: enviá-lo pela USB.</td></tr>
+    <tr><td>Biblioteca</td><td>Código pronto feito por outros (ex.: ESP Async WebServer para o servidor, U8g2 para o ecrã).</td></tr>
+    <tr><td>LittleFS</td><td>O "disco" da placa, na memória flash: guarda as contas e os dados mesmo sem corrente. Formatá-lo apaga tudo.</td></tr>
+    <tr><td>mDNS (.local)</td><td>Dá um nome à placa na rede de casa (organizador.local), em vez de decorar o IP.</td></tr>
+    <tr><td>IP</td><td>O endereço de um aparelho na rede (a minha placa: 192.168.0.109). O router pode mudá-lo, a não ser que o reserve.</td></tr>
+    <tr><td>Reserva de IP (DHCP)</td><td>Dizer ao router para dar sempre o mesmo IP a um aparelho. Ainda está por fazer para a placa.</td></tr>
+    <tr><td>2,4 GHz / 5 GHz</td><td>As duas bandas de Wi-Fi. A placa só liga a 2,4 GHz.</td></tr>
+    <tr><td>Driver CH340</td><td>Programa que deixa o PC falar com o chip USB da placa.</td></tr>
+    <tr><td>Serial Monitor · baud</td><td>Janela que mostra as mensagens da placa pela USB; o baud (115200) é a velocidade.</td></tr>
+    <tr><td>OLED · I2C</td><td>O ecrãzinho da placa e a ligação de 2 fios (SDA e SCL) que o liga ao chip.</td></tr>
+    <tr><td>Beta</td><td>Versão que já funciona, mas ainda em teste (o servidor é 0.3-beta).</td></tr>
+  </table>
+  <div class="band c-dados">Segurança</div>
+  <table class="gl">
+    <tr><td>Hash</td><td>Transformação de sentido único: dá para verificar uma palavra-passe sem a guardar.</td></tr>
+    <tr><td>Salt</td><td>Um valor aleatório juntado à palavra-passe antes do hash, para duas palavras-passe iguais não darem o mesmo resultado.</td></tr>
+    <tr><td>Token</td><td>A chave da sessão que a app recebe ao entrar e envia em cada pedido, em vez da palavra-passe. Devia ser temporária; no servidor atual <b>ainda não expira</b>.</td></tr>
+    <tr><td>Túnel HTTPS</td><td>Um serviço (ex.: Cloudflare Tunnel) que dá um endereço com HTTPS à placa, para a usar fora de casa e no telemóvel.</td></tr>
+    <tr><td>Rede local (macOS) <span class="new">NOVO</span></td><td>Permissão do macOS que decide que programas podem falar com aparelhos da rede de casa. Bloqueava o Python da app de PC.</td></tr>
+    <tr><td>RGPD</td><td>A lei europeia de proteção de dados. Importa quando houver dados de outras pessoas.</td></tr>
+  </table>
+</section>
+
+<!-- ============================================================ 9 · glossário (3) + rotinas -->
+<section class="flow-on">
+  <div class="band c-pc">Python e projeto</div>
+  <table class="gl">
+    <tr><td>Python · pip</td><td>A linguagem da app de PC · o instalador de bibliotecas do Python.</td></tr>
+    <tr><td>venv (.venv)</td><td>Um ambiente Python isolado, só para este projeto.</td></tr>
+    <tr><td>pywebview</td><td>Biblioteca que abre uma página web numa janela de app no computador (no Mac usa o motor WebKit, o mesmo do Safari).</td></tr>
+    <tr><td>Versão vX.Y.Z</td><td>X muda em grandes viragens, Y em funcionalidades novas, Z em correções (ex.: v4.4.1).</td></tr>
+    <tr><td>Changelog · README</td><td>O registo de alterações · a página de apresentação do projeto.</td></tr>
+    <tr><td>Teste automático</td><td>Código que verifica outro código sozinho (ex.: "amanhã 14h" tem de dar a data de amanhã às 14:00).</td></tr>
+  </table>
+
+</section>
+
+<section class="page" style="break-before:page">
+  <div class="bar"></div>
+  <h2>7 · As minhas rotinas</h2>
+  <table>
+    <tr><th>Quero…</th><th>Faço</th></tr>
+    <tr><td>Abrir a app no Mac</td><td>Duplo clique em <b>Organizador.app</b> (ou no ícone da Dock).</td></tr>
+    <tr><td>Pôr a app no telemóvel</td><td>Abrir menedes51.github.io/organizador → Instalar app / Adicionar ao ecrã principal (ou o QR code).</td></tr>
+    <tr><td>Atualizar a app no telemóvel</td><td>Abrir com internet, fechar e voltar a abrir. Confirmo a versão em Mais.</td></tr>
+    <tr><td>Usar a conta num dispositivo novo <span class="new">NOVO</span></td><td>Mais → Conta e sincronização → Entrar (servidor <code>organizador.local</code>). As tarefas dos dois lados são juntadas.</td></tr>
+    <tr><td>Ver se está sincronizado <span class="new">NOVO</span></td><td>Ícone da nuvem no fundo da barra lateral (PC) ou Mais → Conta. "Sincronizar agora" força uma sincronização.</td></tr>
+    <tr><td>Publicar uma mudança</td><td>Trabalhar num ramo → PR → merge no main (o site atualiza sozinho em 1–2 min). Ou <code>./publicar.sh "o que mudou"</code>.</td></tr>
+    <tr><td>Correr os testes</td><td>Na pasta do projeto: <code>python3 -m http.server 8767</code> e abrir localhost:8767/tests/ (devem passar todos).</td></tr>
+    <tr><td>Testar o servidor</td><td>Na rede de casa, abrir http://organizador.local (página de teste). O ecrã da placa mostra o IP.</td></tr>
+    <tr><td>Recuperar tarefas</td><td>Mais → Cópias de segurança → Restaurar (ou Importar uma cópia exportada).</td></tr>
+    <tr><td>Pôr tarefas no calendário do telemóvel</td><td>Abrir a tarefa → botão Calendário (o alarme toca mesmo com a app fechada).</td></tr>
+    <tr><td>Atualizar esta documentação <span class="new">NOVO</span></td><td>Editar <code>docs/documentacao.html</code> e gerar o PDF com o comando do topo do ficheiro (ou pedir ao Claude).</td></tr>
+    <tr><td>Continuar com o Claude noutra conversa</td><td>Abrir uma sessão nova na pasta do projeto e pedir para ler a memória, o README e o CHANGELOG.</td></tr>
+  </table>
+
+  <h3>As minhas regras</h3>
+  <table>
+    <tr><td style="width:auto"><b>Nunca</b> pôr no GitHub as tarefas, as cópias, nem a palavra-passe do Wi-Fi (o repositório é público).</td></tr>
+    <tr><td style="width:auto">Trabalhar sempre num <b>ramo</b> e abrir um <b>PR</b>; o merge no main só depois de rever.</td></tr>
+    <tr><td style="width:auto">Cada alteração leva uma entrada no <b>CHANGELOG</b>, com versão, data e o que mudou.</td></tr>
+    <tr><td style="width:auto">Na conta da placa, usar uma palavra-passe que não uso noutros sítios (a ligação ainda não é cifrada).</td></tr>
+    <tr><td style="width:auto">Antes de dar a placa a colegas: apagar as contas de teste, reservar o IP no router e resolver o HTTPS.</td></tr>
+  </table>
+
+  <h3>O que vem a seguir</h3>
+  <p>Túnel HTTPS (para o telemóvel e fora de casa) → tornar o servidor mais seguro (tokens que expiram, limite de logins, apagar conta e mudar palavra-passe) → reservar o IP da placa → testar com 10–20 colegas → medir o interesse num plano Pro (1 €/mês ou 10 €/ano) → se houver procura, servidor na cloud e lojas de apps.</p>
+</section>
+
+</body>
+</html>

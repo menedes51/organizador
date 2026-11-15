@@ -16,8 +16,8 @@ export PATH="$HOME/.local/bin:$PATH"
 cd "$(dirname "$0")"
 
 # O que é público (acrescenta aqui pastas/ficheiros novos do projeto)
-PUBLICO=(static tests esp32 organizador.py Organizador.app CHANGELOG.md README.md
-         publicar.sh qrcode-organizador.png .gitignore .privado .github)
+PUBLICO=(static tests esp32 docs organizador.py Organizador.app CHANGELOG.md README.md
+         publicar.sh qrcode-organizador.png Documentacao_Organizador.pdf .gitignore .privado .github)
 
 parar() { git reset -q; echo; echo "NADA FOI ENVIADO. $1"; exit 1; }
 
