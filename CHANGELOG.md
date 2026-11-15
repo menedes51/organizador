@@ -33,11 +33,9 @@ Todas as mudanças à app ficam registadas aqui, da mais recente para a mais ant
 - Se a app ficar aberta de um dia para o outro, "Hoje" e as atrasadas atualizam-se à meia-noite.
 
 ### Servidor
-- **Mudança de ESP32 para ESP8266** (a placa ESP32 tinha um problema no contacto do cabo). A pasta `esp32/` passou a `esp8266/`, com:
-  - o código adaptado: bibliotecas do ESP8266, hash SHA-256 do próprio chip, armazenamento LittleFS, a página de teste guardada na flash e `MDNS.update()` para o `organizador.local` funcionar;
-  - o guia novo `Guia_Servidor_ESP8266.pdf`: placa NodeMCU 1.0 / Wemos D1 mini, drivers CH340 ou CP2102, opção *Flash Size* com espaço para ficheiros, botões FLASH/RST.
-- O `publicar.sh` verifica agora o `config.h` na pasta `esp8266/`.
-- Como no ESP32, este código ainda não foi compilado; o primeiro teste é no desktop.
+- **Guia novo** `esp32/Guia_Servidor.pdf`, com o que foi testado numa placa real (v4.2.2): ESP8266 ideaspark com OLED (CH340, USB-C), ESP32 DevKit V1 como alternativa, bibliotecas certas (para a ESP8266, **ESP Async TCP 2.0.0** do autor ESP32Async, não a antiga “ESPAsyncTCP” 1.2.4), Flash Size com espaço para ficheiros, botões FLASH/RST e o truque da pasta de compilação curta no Windows.
+- O `publicar.sh` verifica a palavra-passe do Wi-Fi no `esp32/organizador_servidor/config.h` (o mesmo código serve para ESP32 e ESP8266).
+- Uma versão só para ESP8266 que esteve neste ramo, nunca testada, foi retirada em favor do código testado da v4.2.2.
 
 ### Alterado
 - O código da app foi dividido em 7 ficheiros (`static/js/01…07`) em vez de um só com mais de 3000 linhas.
@@ -48,6 +46,19 @@ Todas as mudanças à app ficam registadas aqui, da mais recente para a mais ant
   Avisa também dos ficheiros novos que não enviou.
 - No detalhe de uma tarefa com lembrete aparece a nota "só toca com a app aberta", que remete para o botão Calendário.
 - Os trabalhos de grupo indicam que ficam só neste dispositivo (a partilha a sério fica para quando houver servidor).
+---
+
+## v4.2.2 — 15 nov 2026 · Servidor testado numa placa a sério
+
+### Novo
+- O servidor (versão **0.2-beta**) passa a funcionar também em **ESP8266** (ex.: NodeMCU / ideaspark com OLED), com o mesmo ficheiro `.ino`. Foi testado numa ESP8266 ideaspark: criar conta, entrar, guardar e ler dados, e os dados continuam lá depois de reiniciar a placa.
+
+### Corrigido
+- As respostas da API indicam agora `charset=utf-8`, e os acentos (ex.: "Física") já não aparecem trocados.
+- `ArduinoJson.h` é incluído antes de `AsyncJson.h`, a ordem que a biblioteca exige.
+
+### Alterado
+- README: como compilar e enviar com o `arduino-cli`, como impedir que o `config.h` com a palavra-passe entre num commit, e o truque da pasta de compilação curta no Windows.
 
 ---
 

@@ -15,7 +15,7 @@ Cada dispositivo guarda as suas tarefas localmente. Para passar tarefas entre di
 | `tests/` | Testes automáticos da lógica. Abre `tests/index.html` através de um servidor local (ver abaixo). |
 | `organizador.py` | App de secretária (janela própria, via [pywebview](https://pywebview.flowrl.com/)). Guarda as tarefas em `dados.json` (não vai para o GitHub). |
 | `Organizador.app` | Atalho para abrir a app de secretária no Mac (duplo clique). |
-| `esp8266/` | Servidor de contas (beta) para ESP8266 (NodeMCU / Wemos D1 mini) + guia em PDF (`Guia_Servidor_ESP8266.pdf`). |
+| `esp32/` | Servidor de contas (beta) — o mesmo código serve **ESP8266** (testado numa ideaspark) e ESP32 — + guia em PDF (`Guia_Servidor.pdf`). |
 | `CHANGELOG.md` | Registo de todas as alterações. |
 | `publicar.sh` | Envia as alterações para o GitHub (o site atualiza-se sozinho). Só envia a lista pública e verifica o `.privado`. |
 | `.privado` | Lista do que **nunca** vai para o GitHub (tarefas, cópias de segurança, preferências). |
@@ -47,7 +47,24 @@ A app faz uma cópia automática por dia (guarda as últimas 7). No telemóvel f
 ./publicar.sh "Descrição da alteração"
 ```
 
-## Servidor ESP8266
+## Servidor (ESP8266 / ESP32)
 
-Ver `esp8266/Guia_Servidor_ESP8266.pdf`. Antes de carregar, põe o nome e a palavra-passe do Wi-Fi em
-`esp8266/organizador_servidor/config.h` — **mas não envies esse ficheiro alterado para o GitHub.**
+Ver `esp32/Guia_Servidor.pdf` (passo a passo, para ESP8266 e ESP32). Antes de carregar, põe o nome e a palavra-passe do Wi-Fi em
+`esp32/organizador_servidor/config.h` — **mas não envies esse ficheiro alterado para o GitHub.**
+Para o Git deixar de ver as alterações a esse ficheiro neste computador:
+
+```bash
+git update-index --skip-worktree esp32/organizador_servidor/config.h
+```
+
+O mesmo código funciona em **ESP32** (placa "DOIT ESP32 DEVKIT V1") e em **ESP8266**
+(placa "NodeMCU 1.0 (ESP-12E Module)", ex.: ideaspark com OLED). Na ESP8266 instala
+"ESP Async TCP" em vez de "Async TCP". A rede Wi-Fi tem de ser de 2,4 GHz.
+
+Compilar e enviar com o `arduino-cli` (no Windows usa uma pasta de compilação curta,
+senão o *linker* falha com `CreateProcess: No such file or directory`):
+
+```bash
+arduino-cli compile --fqbn esp8266:esp8266:nodemcuv2 --build-path C:\esp8266build esp32/organizador_servidor
+arduino-cli upload -p COM4 --fqbn esp8266:esp8266:nodemcuv2 --input-dir C:\esp8266build esp32/organizador_servidor
+```
