@@ -133,6 +133,28 @@ def _mac_branding():
         pass
 
 
+def _show_in_dock():
+    """Depois de a janela abrir: ícone do Organizador na Dock e janela à frente."""
+    if sys.platform != "darwin":
+        return
+    try:
+        from AppKit import NSApplication, NSImage, NSApplicationActivationPolicyRegular
+        from PyObjCTools import AppHelper
+
+        def apply():
+            app = NSApplication.sharedApplication()
+            app.setActivationPolicy_(NSApplicationActivationPolicyRegular)
+            if os.path.exists(ICON):
+                app.setApplicationIconImage_(NSImage.alloc().initWithContentsOfFile_(ICON))
+            app.activateIgnoringOtherApps_(True)
+        for delay in (0.3, 1.5):  # repete: o macOS às vezes repõe o ícone ao terminar de abrir
+            import time
+            time.sleep(delay)
+            AppHelper.callAfter(apply)
+    except Exception:
+        pass
+
+
 def _already_running():
     """Se a app já estiver aberta, traz essa janela para a frente e devolve True."""
     try:
@@ -174,7 +196,7 @@ def main():
     # Se a porta estiver ocupada por outro programa, usa uma ao acaso
     # (a app funciona; só as preferências de aparência não ficam guardadas nessa vez).
     try:
-        webview.start(http_server=True, http_port=PORT if _port_free(PORT) else None,
+        webview.start(_show_in_dock, http_server=True, http_port=PORT if _port_free(PORT) else None,
                       private_mode=False, storage_path=os.path.join(ROOT, ".webdata"))
     finally:
         try:

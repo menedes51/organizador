@@ -29,6 +29,7 @@ Todas as mudanças à app ficam registadas aqui, da mais recente para a mais ant
   - abrir duas vezes já não falha; traz para a frente a janela que já está aberta;
   - se a pasta `.venv` faltar ou estiver estragada, o Organizador.app volta a prepará-la sozinho;
   - se não conseguir ler o `dados.json`, não escreve por cima e sugere restaurar uma cópia.
+  - o ícone do Organizador na Dock é aplicado depois de a janela abrir (antes às vezes ficava o ícone genérico), e a janela passa para a frente ao abrir.
 - Se a app ficar aberta de um dia para o outro, "Hoje" e as atrasadas atualizam-se à meia-noite.
 
 ### Alterado
