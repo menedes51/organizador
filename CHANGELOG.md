@@ -4,6 +4,33 @@ Todas as mudanças à app ficam registadas aqui, da mais recente para a mais ant
 
 ---
 
+## v4.4 — 15 nov 2026 · Conta e sincronização com o servidor
+
+### Novo
+- **Ecrã Conta** (Mais → Conta e sincronização; no PC, ícone da nuvem no fundo da barra lateral):
+  - criar conta, entrar e sair, no servidor ESP8266 (0.3-beta) da rede de casa (por omissão `organizador.local`; também aceita o IP, ex.: `192.168.0.109`);
+  - botão **Testar ligação**, que diz se o endereço é mesmo um servidor do Organizador;
+  - a sessão (token) fica guardada no dispositivo; sair da conta **não apaga** as tarefas do dispositivo.
+- **Sincronização** com `GET` / `PUT /api/data`:
+  - os dados do dispositivo e do servidor são **juntados item a item** antes de enviar: quando o mesmo item foi mudado em dois sítios, fica a alteração mais recente (`updatedAt`). Apagar também passa para os outros dispositivos;
+  - automática ao abrir a app, uns segundos depois de cada alteração, a cada 5 minutos e ao voltar à app (pode ser desligada);
+  - só envia quando há alguma coisa nova (poupa a memória da placa) e avisa se os dados passarem o limite do servidor (200 KB);
+  - antes da primeira sincronização é guardada uma cópia de segurança "Antes de sincronizar";
+  - se a sessão deixar de ser válida, a app avisa e pede para entrar outra vez.
+- 6 testes novos (42 no total): fusão dos dados, apagados, nada para enviar, dados inválidos vindos do servidor e endereço do servidor.
+
+### Alterado
+- O código da app passa a ter 8 ficheiros: `07-conta.js` (novo) e `08-arranque.js` (antes `07-arranque.js`).
+- App de PC: os pedidos ao servidor são feitos pela janela e, se falharem, pelo Python (`organizador.py`). Isto evita um bloqueio do macOS: a definição **Rede local** (Privacidade e segurança) pode impedir o Python de chegar à placa, mas não a janela.
+- Num dispositivo novo, se a conta trouxer tarefas, o ecrã de boas-vindas já não aparece.
+
+### Limitações conhecidas
+- O **site** (https) ainda não consegue ligar ao servidor, que não tem HTTPS: o browser bloqueia. Por agora a sincronização funciona na **app de PC**. O telemóvel vai precisar de um túnel HTTPS (ex.: Cloudflare Tunnel).
+- A ligação à placa não é cifrada: usa uma palavra-passe que não uses noutros sítios.
+- Um dispositivo que fique mais de 30 dias sem sincronizar pode fazer voltar itens apagados noutro dispositivo (os apagados são limpos ao fim de 30 dias).
+
+---
+
 ## v4.3.1 — 15 nov 2026 · Servidor com ecrã de estatísticas e arranque sem Wi-Fi
 
 ### Novo

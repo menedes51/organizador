@@ -5,13 +5,16 @@ App de tarefas, calendário, horário das aulas, disciplinas, notas e trabalhos 
 **Abrir / instalar:** https://menedes51.github.io/organizador/
 (no Android: Chrome → ⋮ → *Instalar app*; no iPhone: Safari → Partilhar → *Adicionar ao ecrã principal*)
 
-Cada dispositivo guarda as suas tarefas localmente. Para passar tarefas entre dispositivos usa **Mais → Exportar / Importar cópia**.
+Cada dispositivo guarda as suas tarefas localmente. Para as ter em vários dispositivos:
+
+- **Conta (beta, v4.4):** Mais → *Conta e sincronização*. Liga-se ao servidor ESP8266 da rede de casa (`organizador.local`) e junta os dados item a item (fica a alteração mais recente). Por agora funciona na **app de PC**; o site precisa de HTTPS no servidor.
+- **Sem conta:** Mais → *Exportar / Importar cópia*.
 
 ## Estrutura
 
 | Pasta / ficheiro | O que é |
 |---|---|
-| `static/` | A app (HTML, CSS e JavaScript em `static/js/01…07`). É publicada automaticamente no GitHub Pages. |
+| `static/` | A app (HTML, CSS e JavaScript em `static/js/01…08`). É publicada automaticamente no GitHub Pages. |
 | `tests/` | Testes automáticos da lógica. Abre `tests/index.html` através de um servidor local (ver abaixo). |
 | `organizador.py` | App de secretária (janela própria, via [pywebview](https://pywebview.flowrl.com/)). Guarda as tarefas em `dados.json` (não vai para o GitHub). |
 | `Organizador.app` | Atalho para abrir a app de secretária no Mac (duplo clique). |
@@ -35,7 +38,7 @@ python3 -m venv .venv
 python3 -m http.server 8767
 ```
 
-Depois abre http://localhost:8767/tests/ — deve dizer “36 de 36 passaram”. Os testes usam um armazenamento separado e não mexem nas tuas tarefas.
+Depois abre http://localhost:8767/tests/ — deve dizer “42 de 42 passaram”. Os testes usam um armazenamento separado e não mexem nas tuas tarefas.
 
 ## Cópias de segurança
 

@@ -1,5 +1,5 @@
 /* Organizador · 01-base.js — Dados, validação, disciplinas/trabalhos/notas, tarefas e eventos
-   (os ficheiros js/01…07 são carregados por esta ordem; partilham as mesmas variáveis globais) */
+   (os ficheiros js/01…08 são carregados por esta ordem; partilham as mesmas variáveis globais) */
 'use strict';
 
 /* ==========================================================================
@@ -93,6 +93,7 @@ const ICONS = {
   star: '<path d="m12 3 2.8 5.8 6.2.9-4.5 4.4 1.1 6.2L12 17.4l-5.6 2.9 1.1-6.2L3 9.7l6.2-.9z"/>',
   board: '<rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M9 4v16M15 4v16"/>',
   sliders: '<path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/>',
+  cloud: '<path d="M7 18.5h10.5a4 4 0 0 0 .6-7.95A6 6 0 0 0 6.6 9.1 4.7 4.7 0 0 0 7 18.5z"/>',
   shield: '<path d="M12 3 4.5 6v5.5c0 4.6 3.1 8.2 7.5 9.5 4.4-1.3 7.5-4.9 7.5-9.5V6z"/><path d="m9 12 2 2 4-4"/>',
   share: '<path d="M12 15V3M8 7l4-4 4 4"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/>',
   pencil: '<path d="M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/>',
@@ -101,7 +102,7 @@ const icon = (name, cls = '') =>
   `<svg class="i ${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ICONS[name]}</svg>`;
 
 /* ------------------------------------------------------------------ data */
-const APP_VERSION = '4.3';
+const APP_VERSION = '4.4';
 const KEY_PREFIX = window.ORG_TEST ? 'teste.' : '';
 const KEY = KEY_PREFIX + 'organizador.v2';
 const UI_KEY = KEY_PREFIX + 'organizador.ui';
@@ -220,6 +221,7 @@ function saveLocal() {
   try { localStorage.setItem(KEY, text); }
   catch (e) { if (!native) toast('Sem espaço para guardar. Exporta uma cópia e apaga tarefas antigas.'); }
   if (native && !loadFailed) native.save(text);
+  if (typeof syncSoon === 'function') syncSoon(); // conta no servidor (07-conta.js)
 }
 
 // Itens apagados há mais de 30 dias são removidos de vez (evita que os dados cresçam para sempre).

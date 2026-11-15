@@ -989,3 +989,21 @@ html.square :is(.composer, .chip, .btn, .task, .rows, .menu, .modal, .detail, .k
   .cal-day { height: 52px; padding-top: 5px; gap: 4px; }
   .cal-day .num { width: 26px; height: 26px; }
 }
+
+/* =============================================================== v4.4 · conta e sincronização */
+.acc-seg { display: flex; max-width: 360px; margin: 4px 0 6px; }
+.acc-seg button { flex: 1; height: 32px; }
+.acc-form { max-width: 360px; }
+.acc-form label { display: block; margin-top: 12px; font-size: 13px; font-weight: 550; color: var(--text-2); }
+.acc-form .modal-input { margin-top: 5px; background: var(--surface); }
+.acc-hint { margin-top: 10px; font-size: 12.5px; color: var(--text-3); line-height: 1.45; }
+.acc-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+.acc-actions [data-acc-submit] { margin-left: auto; }
+.acc-status { font-size: 12.5px; color: var(--text-3); }
+.acc-status.bad, .pref span.acc-status.bad { color: var(--danger); }
+.btn:disabled { opacity: .55; pointer-events: none; }
+.sync-foot { color: var(--text-3); }
+.sync-foot.on { color: var(--accent); }
+.sync-foot.bad { color: var(--danger); }
+.sync-foot.busy svg { animation: syncPulse 1s ease-in-out infinite alternate; }
+@keyframes syncPulse { from { opacity: 1; } to { opacity: .35; } }
