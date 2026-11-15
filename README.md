@@ -20,6 +20,7 @@ Cada dispositivo guarda as suas tarefas localmente. Para as ter em vários dispo
 | `Organizador.app` | Atalho para abrir a app de secretária no Mac (duplo clique). |
 | `esp32/` | Servidor de contas (beta) — o mesmo código serve **ESP8266** (testado numa ideaspark) e ESP32 — + guia em PDF (`Guia_Servidor.pdf`). |
 | `CHANGELOG.md` | Registo de todas as alterações. |
+| `Documentacao_Organizador.pdf` | Mapa do projeto: mapa mental, o que é cada ficheiro, como tudo se liga e glossário (PR, commit, PWA, token…). |
 | `publicar.sh` | Envia as alterações para o GitHub (o site atualiza-se sozinho). Só envia a lista pública e verifica o `.privado`. |
 | `.privado` | Lista do que **nunca** vai para o GitHub (tarefas, cópias de segurança, preferências). |
 | `qrcode-organizador.png` | QR code para instalar a app. |
