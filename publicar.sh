@@ -8,7 +8,7 @@
 # Segurança — só é enviado o que está na lista PUBLICO, e antes de enviar:
 #   1. nada do que está em .privado pode estar no envio;
 #   2. nenhum ficheiro pode parecer uma cópia das tuas tarefas;
-#   3. o config.h do ESP32 não pode ter a tua palavra-passe do Wi-Fi.
+#   3. o config.h do servidor (ESP8266) não pode ter a tua palavra-passe do Wi-Fi.
 # Ficheiros novos que não estejam em nenhuma das listas NÃO são enviados.
 # ---------------------------------------------------------------------------
 set -e
@@ -16,7 +16,7 @@ export PATH="$HOME/.local/bin:$PATH"
 cd "$(dirname "$0")"
 
 # O que é público (acrescenta aqui pastas/ficheiros novos do projeto)
-PUBLICO=(static tests esp32 organizador.py Organizador.app CHANGELOG.md README.md
+PUBLICO=(static tests esp8266 organizador.py Organizador.app CHANGELOG.md README.md
          publicar.sh qrcode-organizador.png .gitignore .privado .github)
 
 parar() { git reset -q; echo; echo "NADA FOI ENVIADO. $1"; exit 1; }
@@ -41,8 +41,8 @@ for f in $(git diff --cached --name-only --diff-filter=AM | grep -E '\.json$' ||
   fi
 done
 
-# 3. Palavra-passe do Wi-Fi do ESP32
-CFG=esp32/organizador_servidor/config.h
+# 3. Palavra-passe do Wi-Fi do servidor (ESP8266)
+CFG=esp8266/organizador_servidor/config.h
 if [ -f "$CFG" ] && ! grep -q 'WIFI_PASSWORD "PALAVRA_PASSE_DA_REDE"' "$CFG"; then
   parar "O $CFG tem a tua palavra-passe do Wi-Fi. Repõe os valores de exemplo."
 fi

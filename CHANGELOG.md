@@ -32,6 +32,13 @@ Todas as mudanças à app ficam registadas aqui, da mais recente para a mais ant
   - o ícone do Organizador na Dock é aplicado depois de a janela abrir (antes às vezes ficava o ícone genérico), e a janela passa para a frente ao abrir.
 - Se a app ficar aberta de um dia para o outro, "Hoje" e as atrasadas atualizam-se à meia-noite.
 
+### Servidor
+- **Mudança de ESP32 para ESP8266** (a placa ESP32 tinha um problema no contacto do cabo). A pasta `esp32/` passou a `esp8266/`, com:
+  - o código adaptado: bibliotecas do ESP8266, hash SHA-256 do próprio chip, armazenamento LittleFS, a página de teste guardada na flash e `MDNS.update()` para o `organizador.local` funcionar;
+  - o guia novo `Guia_Servidor_ESP8266.pdf`: placa NodeMCU 1.0 / Wemos D1 mini, drivers CH340 ou CP2102, opção *Flash Size* com espaço para ficheiros, botões FLASH/RST.
+- O `publicar.sh` verifica agora o `config.h` na pasta `esp8266/`.
+- Como no ESP32, este código ainda não foi compilado; o primeiro teste é no desktop.
+
 ### Alterado
 - O código da app foi dividido em 7 ficheiros (`static/js/01…07`) em vez de um só com mais de 3000 linhas.
 - **Publicar é mais seguro**: `publicar.sh` só envia o que está numa lista pública. Antes de enviar, verifica que:

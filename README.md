@@ -15,7 +15,7 @@ Cada dispositivo guarda as suas tarefas localmente. Para passar tarefas entre di
 | `tests/` | Testes automáticos da lógica. Abre `tests/index.html` através de um servidor local (ver abaixo). |
 | `organizador.py` | App de secretária (janela própria, via [pywebview](https://pywebview.flowrl.com/)). Guarda as tarefas em `dados.json` (não vai para o GitHub). |
 | `Organizador.app` | Atalho para abrir a app de secretária no Mac (duplo clique). |
-| `esp32/` | Servidor de contas (beta) para ESP32 + guia em PDF (`Guia_Servidor_ESP32.pdf`). |
+| `esp8266/` | Servidor de contas (beta) para ESP8266 (NodeMCU / Wemos D1 mini) + guia em PDF (`Guia_Servidor_ESP8266.pdf`). |
 | `CHANGELOG.md` | Registo de todas as alterações. |
 | `publicar.sh` | Envia as alterações para o GitHub (o site atualiza-se sozinho). Só envia a lista pública e verifica o `.privado`. |
 | `.privado` | Lista do que **nunca** vai para o GitHub (tarefas, cópias de segurança, preferências). |
@@ -47,7 +47,7 @@ A app faz uma cópia automática por dia (guarda as últimas 7). No telemóvel f
 ./publicar.sh "Descrição da alteração"
 ```
 
-## Servidor ESP32
+## Servidor ESP8266
 
-Ver `esp32/Guia_Servidor_ESP32.pdf`. Antes de carregar, põe o nome e a palavra-passe do Wi-Fi em
-`esp32/organizador_servidor/config.h` — **mas não envies esse ficheiro alterado para o GitHub.**
+Ver `esp8266/Guia_Servidor_ESP8266.pdf`. Antes de carregar, põe o nome e a palavra-passe do Wi-Fi em
+`esp8266/organizador_servidor/config.h` — **mas não envies esse ficheiro alterado para o GitHub.**

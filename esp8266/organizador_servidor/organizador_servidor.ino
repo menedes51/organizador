@@ -1,29 +1,31 @@
 // ===========================================================================
-//  Organizador — servidor de contas (versão beta) para ESP32
+//  Organizador — servidor de contas (versão beta) para ESP8266
 //
 //  O que faz:
 //   • Criar conta e entrar (palavra-passe guardada com hash + salt, nunca em texto)
 //   • Guardar e ler os dados de cada conta (as tarefas da app)
 //   • Página de teste em http://organizador.local para experimentar sem a app
 //
-//  Bibliotecas (Arduino IDE → Library Manager):
-//   • "ESP Async WebServer"  (autor: ESP32Async)
-//   • "Async TCP"            (autor: ESP32Async)
-//   • "ArduinoJson"          (autor: Benoit Blanchon, versão 7)
+//  Placa (Arduino IDE → Tools → Board → ESP8266 Boards):
+//   • "NodeMCU 1.0 (ESP-12E Module)"   ou   "LOLIN(WEMOS) D1 R2 & mini"
+//   • Tools → Flash Size → "4MB (FS:2MB OTA:~1019KB)"  (precisa de espaço para os ficheiros)
 //
-//  Placa: "DOIT ESP32 DEVKIT V1" (ou "ESP32 Dev Module")
+//  Bibliotecas (Arduino IDE → Library Manager):
+//   • "ESP Async WebServer"  (autor: ESP32Async — também serve o ESP8266)
+//   • "ESPAsyncTCP"          (autor: ESP32Async)
+//   • "ArduinoJson"          (autor: Benoit Blanchon, versão 7)
 // ===========================================================================
-#include <WiFi.h>
-#include <ESPmDNS.h>
+#include <ESP8266WiFi.h>
+#include <ESP8266mDNS.h>
 #include <LittleFS.h>
-#include <AsyncTCP.h>
+#include <ESPAsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 #include <AsyncJson.h>
 #include <ArduinoJson.h>
-#include "mbedtls/sha256.h"
+#include <bearssl/bearssl_hash.h>
 #include "config.h"
 
-static const char *VERSION = "0.1-beta";
+static const char *VERSION = "0.2-beta-esp8266";
 AsyncWebServer server(80);
 
 // ----------------------------------------------------------------- utilitários
@@ -37,21 +39,29 @@ String hexOf(const uint8_t *b, size_t n) {
 String randomHex(size_t bytes) {
   uint8_t buf[32];
   if (bytes > sizeof(buf)) bytes = sizeof(buf);
-  for (size_t i = 0; i < bytes; i++) buf[i] = esp_random() & 0xFF;
+  for (size_t i = 0; i < bytes; i++) buf[i] = ESP.random() & 0xFF;  // gerador de números aleatórios do chip
   return hexOf(buf, bytes);
 }
 
-// Hash da palavra-passe: SHA-256 com salt, repetido 5000 vezes (abranda ataques).
+void sha256(const uint8_t *data, size_t len, uint8_t out[32]) {
+  br_sha256_context c;
+  br_sha256_init(&c);
+  br_sha256_update(&c, data, len);
+  br_sha256_out(&c, out);
+}
+
+// Hash da palavra-passe: SHA-256 com salt, repetido 2000 vezes (abranda ataques).
+// (Menos repetições do que no ESP32: o ESP8266 é mais lento e não pode bloquear muito tempo.)
 String hashPassword(const String &salt, const String &pass) {
   uint8_t out[32];
   String first = salt + ":" + pass;
-  mbedtls_sha256((const unsigned char *)first.c_str(), first.length(), out, 0);
+  sha256((const uint8_t *)first.c_str(), first.length(), out);
   uint8_t buf[64];
   size_t sl = salt.length() > 32 ? 32 : salt.length();
-  for (int i = 0; i < 5000; i++) {
+  for (int i = 0; i < 2000; i++) {
     memcpy(buf, out, 32);
     memcpy(buf + 32, salt.c_str(), sl);
-    mbedtls_sha256(buf, 32 + sl, out, 0);
+    sha256(buf, 32 + sl, out);
   }
   return hexOf(out, 32);
 }
@@ -77,7 +87,8 @@ bool saveJson(const char *path, JsonDocument &doc) {
 // Nomes de utilizador: 3–24 caracteres, letras minúsculas, números, . _ -
 bool validUser(const String &u) {
   if (u.length() < 3 || u.length() > 24) return false;
-  for (char c : u) {
+  for (size_t i = 0; i < u.length(); i++) {
+    char c = u[i];
     if (!(isdigit(c) || (c >= 'a' && c <= 'z') || c == '.' || c == '_' || c == '-')) return false;
   }
   return true;
@@ -121,7 +132,7 @@ String newToken(const String &user) {
   return token;
 }
 
-// ----------------------------------------------------------------- página de teste
+// ----------------------------------------------------------------- página de teste (guardada na flash)
 const char TEST_PAGE[] PROGMEM = R"HTML(<!doctype html><html lang="pt"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>Organizador · Servidor</title>
 <style>body{font:15px -apple-system,Segoe UI,Roboto,sans-serif;max-width:520px;margin:40px auto;padding:0 16px;background:#111113;color:#ececef}
@@ -135,7 +146,7 @@ button{background:#ececef;color:#111;border:0;cursor:pointer}pre{background:#181
 <pre id="out">—</pre>
 <script>
 let token=localStorage.getItem('tok')||'';const out=t=>document.getElementById('out').textContent=typeof t==='string'?t:JSON.stringify(t,null,2);
-fetch('/api/ping').then(r=>r.json()).then(j=>document.getElementById('st').textContent=`A funcionar · versão ${j.version} · ${j.users} conta(s)`+(token?' · com sessão iniciada':''));
+fetch('/api/ping').then(r=>r.json()).then(j=>document.getElementById('st').textContent=`A funcionar · versão ${j.version} · ${j.users} conta(s) · ${j.freeKB} KB livres`+(token?' · com sessão iniciada':''));
 async function acc(kind){const r=await fetch('/api/'+kind,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user:u.value.trim().toLowerCase(),pass:p.value})});const j=await r.json();if(j.token){token=j.token;localStorage.setItem('tok',token);}out(j);}
 async function save(){const body=JSON.stringify({tasks:[{id:'t'+Date.now(),title:'Tarefa de teste',updatedAt:Date.now()}],savedFrom:'página de teste'});const r=await fetch('/api/data',{method:'PUT',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},body});out(await r.json());}
 async function load(){const r=await fetch('/api/data',{headers:{'Authorization':'Bearer '+token}});out(await r.text());}
@@ -151,11 +162,15 @@ void setup() {
   Serial.println();
   Serial.println("=== Organizador · servidor " + String(VERSION) + " ===");
 
-  if (!LittleFS.begin(true)) Serial.println("ERRO: não consegui iniciar o armazenamento (LittleFS)");
+  if (!LittleFS.begin()) {
+    Serial.println("A preparar o armazenamento (só da primeira vez)…");
+    LittleFS.format();
+    if (!LittleFS.begin()) Serial.println("ERRO: armazenamento indisponível. Confirma Tools → Flash Size com FS (ex.: 4MB FS:2MB).");
+  }
   if (!LittleFS.exists("/data")) LittleFS.mkdir("/data");
 
   WiFi.mode(WIFI_STA);
-  WiFi.setHostname(HOSTNAME);
+  WiFi.hostname(HOSTNAME);
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
   Serial.print("A ligar ao Wi-Fi \"" WIFI_SSID "\"");
   unsigned long t0 = millis();
@@ -177,14 +192,18 @@ void setup() {
   DefaultHeaders::Instance().addHeader("Access-Control-Allow-Methods", "GET, POST, PUT, OPTIONS");
   DefaultHeaders::Instance().addHeader("Access-Control-Allow-Private-Network", "true");
 
-  server.on("/", HTTP_GET, [](AsyncWebServerRequest *req) { req->send(200, "text/html; charset=utf-8", TEST_PAGE); });
+  server.on("/", HTTP_GET, [](AsyncWebServerRequest *req) {
+    req->send(200, "text/html; charset=utf-8", String(FPSTR(TEST_PAGE)));
+  });
 
   server.on("/api/ping", HTTP_GET, [](AsyncWebServerRequest *req) {
     JsonDocument users; loadJson("/users.json", users);
+    FSInfo fs; LittleFS.info(fs);
     JsonDocument d;
     d["ok"] = true; d["app"] = "organizador"; d["version"] = VERSION;
     d["users"] = users.as<JsonObject>().size();
-    d["freeKB"] = (LittleFS.totalBytes() - LittleFS.usedBytes()) / 1024;
+    d["freeKB"] = (fs.totalBytes - fs.usedBytes) / 1024;
+    d["heap"] = ESP.getFreeHeap();
     sendJson(req, 200, d);
   });
 
@@ -200,7 +219,6 @@ void setup() {
     String salt = randomHex(16);
     users[user]["salt"] = salt;
     users[user]["hash"] = hashPassword(salt, pass);
-    users[user]["created"] = millis();
     if (!saveJson("/users.json", users)) return sendError(req, 500, "Erro a guardar a conta");
     JsonDocument d; d["ok"] = true; d["user"] = user; d["token"] = newToken(user);
     sendJson(req, 200, d);
@@ -240,7 +258,7 @@ void setup() {
     req->send(LittleFS, path, "application/json");
   });
 
-  // Guardar os dados da conta (recebe o JSON aos bocados e grava em ficheiro)
+  // Guardar os dados da conta (recebe o JSON aos bocados e grava em ficheiro — pouca memória no ESP8266)
   server.on("/api/data", HTTP_PUT,
     [](AsyncWebServerRequest *req) {
       UploadState *st = (UploadState *)req->_tempObject;
@@ -260,6 +278,7 @@ void setup() {
     [](AsyncWebServerRequest *req, uint8_t *data, size_t len, size_t index, size_t total) {
       if (index == 0) {
         UploadState *st = (UploadState *)malloc(sizeof(UploadState));
+        if (!st) return;
         memset(st, 0, sizeof(UploadState));
         req->_tempObject = st;
         String user = userFromRequest(req);
@@ -286,11 +305,11 @@ void setup() {
 }
 
 void loop() {
+  MDNS.update();  // no ESP8266 o nome organizador.local precisa disto
   // Volta a ligar se o Wi-Fi cair
   static unsigned long last = 0;
   if (millis() - last > 10000) {
     last = millis();
     if (WiFi.status() != WL_CONNECTED) { Serial.println("Wi-Fi perdido, a ligar outra vez…"); WiFi.reconnect(); }
   }
-  delay(10);
 }

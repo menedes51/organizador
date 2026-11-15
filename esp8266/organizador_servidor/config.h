@@ -1,7 +1,8 @@
 // ===========================================================================
-//  Organizador — configuração do servidor (ESP32)
+//  Organizador — configuração do servidor (ESP8266)
 //  Muda só as duas linhas da rede Wi-Fi. A rede tem de ser de 2,4 GHz
-//  (o ESP32 não liga a redes de 5 GHz).
+//  (o ESP8266 não liga a redes de 5 GHz).
+//  NUNCA envies este ficheiro para o GitHub com a palavra-passe verdadeira.
 // ===========================================================================
 #pragma once
 
