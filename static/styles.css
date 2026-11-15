@@ -1007,3 +1007,8 @@ html.square :is(.composer, .chip, .btn, .task, .rows, .menu, .modal, .detail, .k
 .sync-foot.bad { color: var(--danger); }
 .sync-foot.busy svg { animation: syncPulse 1s ease-in-out infinite alternate; }
 @keyframes syncPulse { from { opacity: 1; } to { opacity: .35; } }
+.acc-adv { margin-top: 14px; font-size: 13px; color: var(--text-3); }
+.acc-adv summary { cursor: pointer; list-style: none; }
+.acc-adv summary::-webkit-details-marker { display: none; }
+.acc-adv summary b { color: var(--text-2); font-weight: 550; }
+.acc-adv[open] summary { margin-bottom: 2px; }

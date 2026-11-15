@@ -205,8 +205,8 @@ test('itens inválidos vindos do servidor são ignorados', () => {
   expect(r.merged.tasks.map(t => t.id)).toBe(['ok']);
 });
 test('endereço do servidor', () => {
-  expect([normServer('organizador.local'), normServer(' 192.168.0.109/ '), normServer('https://x.pt/api'), normServer('ftp://x'), normServer('')])
-    .toBe(['http://organizador.local', 'http://192.168.0.109', 'https://x.pt', null, null]);
+  expect([normServer('organizador.local'), normServer(' 192.168.0.109/ '), normServer('https://x.pt/api'), normServer('ftp://x'), normServer(''), normServer('rui'), normServer('localhost:8790')])
+    .toBe(['http://organizador.local', 'http://192.168.0.109', 'https://x.pt', null, null, null, 'http://localhost:8790']);
 });
 
 /* ------------------------------------------------------------ relatório */

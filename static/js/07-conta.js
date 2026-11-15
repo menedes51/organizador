@@ -37,7 +37,10 @@ function normServer(s) {
   if (!/^https?:\/\//i.test(s)) s = 'http://' + s;
   try {
     const u = new URL(s);
-    return /^https?:$/.test(u.protocol) && u.hostname ? u.origin : null;
+    // "rui" sozinho não é um endereço: tem de ter um ponto (organizador.local, 192.168.0.109) ou ser localhost.
+    const h = u.hostname;
+    const okHost = h === 'localhost' || h.includes('.') || h.startsWith('[');
+    return /^https?:$/.test(u.protocol) && okHost && !h.endsWith('.') ? u.origin : null;
   } catch (e) { return null; }
 }
 
@@ -198,10 +201,13 @@ function viewAccount() {
         <button class="${reg ? 'on' : ''}" data-acc-mode="register">Criar conta</button>
       </div>
       <form class="acc-form" id="accForm" autocomplete="on" onsubmit="return false">
-        <label>Servidor<input class="modal-input" id="accServer" value="${esc(a.server.replace(/^http:\/\//, ''))}" placeholder="organizador.local" autocapitalize="off" autocorrect="off" spellcheck="false" inputmode="url"></label>
         <label>Utilizador<input class="modal-input" id="accUser" name="username" value="${esc(a.user || '')}" placeholder="ex.: ana.silva" autocomplete="username" autocapitalize="off" autocorrect="off" spellcheck="false" maxlength="24"></label>
         <label>Palavra-passe<input class="modal-input" id="accPass" name="password" type="password" autocomplete="${reg ? 'new-password' : 'current-password'}" maxlength="64"></label>
         ${reg ? '<label>Repetir palavra-passe<input class="modal-input" id="accPass2" type="password" autocomplete="new-password" maxlength="64"></label>' : ''}
+        <details class="acc-adv"${a.server !== DEFAULT_SERVER ? ' open' : ''}><summary>Servidor: <b>${esc(a.server.replace(/^https?:\/\//, ''))}</b> · mudar</summary>
+          <label>Endereço do servidor (a placa)<input class="modal-input" id="accServer" value="${esc(a.server.replace(/^http:\/\//, ''))}" placeholder="organizador.local" autocapitalize="off" autocorrect="off" spellcheck="false" inputmode="url"></label>
+          <div class="acc-hint">Não é o teu nome: é o endereço da placa na rede, normalmente <b>organizador.local</b> ou o IP que aparece no ecrã da placa (ex.: 192.168.0.109).</div>
+        </details>
         ${reg ? '<div class="acc-hint">Utilizador: 3 a 24 letras minúsculas, números, ponto, _ ou -. Palavra-passe: pelo menos 6 caracteres, e diferente das que usas noutros sítios (por agora a ligação não é cifrada).</div>' : ''}
         <div class="acc-actions">
           <button type="button" class="btn ghost" data-acc-ping>Testar ligação</button>
@@ -215,7 +221,10 @@ function viewAccount() {
 
 function accFormServer() {
   const s = normServer($('#accServer') ? $('#accServer').value : account().server);
-  if (!s) toast('Endereço do servidor inválido');
+  if (!s) {
+    const d = $('.acc-adv'); if (d) d.open = true;
+    toast('Endereço do servidor inválido. Usa organizador.local ou o IP da placa (ex.: 192.168.0.109).');
+  }
   return s;
 }
 

@@ -24,6 +24,9 @@ Todas as mudanças à app ficam registadas aqui, da mais recente para a mais ant
 - App de PC: os pedidos ao servidor são feitos pela janela e, se falharem, pelo Python (`organizador.py`). Isto evita um bloqueio do macOS: a definição **Rede local** (Privacidade e segurança) pode impedir o Python de chegar à placa, mas não a janela.
 - Num dispositivo novo, se a conta trouxer tarefas, o ecrã de boas-vindas já não aparece.
 
+### Corrigido
+- No ecrã Conta, o campo **Servidor** aparecia em primeiro lugar e parecia pedir o nome da pessoa (no primeiro teste foi lá escrito um nome, e a ligação falhava). Agora o servidor vem já preenchido (`organizador.local`), fica numa linha "Servidor: … · mudar" por baixo da palavra-passe e explica que é o endereço da placa. Um endereço sem ponto (ex.: `rui`) é recusado com uma mensagem clara.
+
 ### Limitações conhecidas
 - O **site** (https) ainda não consegue ligar ao servidor, que não tem HTTPS: o browser bloqueia. Por agora a sincronização funciona na **app de PC**. O telemóvel vai precisar de um túnel HTTPS (ex.: Cloudflare Tunnel).
 - A ligação à placa não é cifrada: usa uma palavra-passe que não uses noutros sítios.
