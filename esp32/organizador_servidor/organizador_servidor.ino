@@ -1,21 +1,22 @@
 // ===========================================================================
-//  Organizador — servidor de contas (versão beta) para ESP32
+//  Organizador — servidor de contas (versão beta) para ESP8266
 //
 //  O que faz:
 //   • Criar conta e entrar (palavra-passe guardada com hash + salt, nunca em texto)
 //   • Guardar e ler os dados de cada conta (as tarefas da app)
 //   • Página de teste em http://organizador.local para experimentar sem a app
+//   • Estatísticas no ecrã OLED da placa (ver ecra.h)
+//
+//  Placa: ESP8266 ideaspark com OLED → no Arduino, "NodeMCU 1.0 (ESP-12E Module)"
 //
 //  Bibliotecas (Arduino IDE → Library Manager):
 //   • "ESP Async WebServer"  (autor: ESP32Async)
-//   • "Async TCP"            (autor: ESP32Async)
+//   • "ESP Async TCP"        (autor: ESP32Async; não a antiga "ESPAsyncTCP")
 //   • "ArduinoJson"          (autor: Benoit Blanchon, versão 7)
+//   • "U8g2"                 (autor: oliver; para o ecrã OLED)
 //
-//  Placa: "DOIT ESP32 DEVKIT V1" (ou "ESP32 Dev Module")
-//
-//  Também funciona em ESP8266 (ex.: NodeMCU / ideaspark com OLED, placa
-//  "NodeMCU 1.0 (ESP-12E Module)"). Nesse caso, em vez de "Async TCP",
-//  instala "ESP Async TCP" (autor: ESP32Async).
+//  O código também compila para ESP32 ("DOIT ESP32 DEVKIT V1", com "Async TCP"
+//  em vez de "ESP Async TCP"), mas não é testado nela.
 // ===========================================================================
 #include <ArduinoJson.h>   // tem de vir antes de AsyncJson.h
 #if defined(ESP8266)
@@ -33,9 +34,27 @@
 #include <ESPAsyncWebServer.h>
 #include <AsyncJson.h>
 #include "config.h"
+#include "ecra.h"           // ecrã OLED com estatísticas (opcional, ver ecra.h)
 
-static const char *VERSION = "0.2-beta";
+static const char *VERSION = "0.3-beta";
 AsyncWebServer server(80);
+
+// Estatísticas para o ecrã e para /api/ping (desde o último arranque).
+struct Estatisticas {
+  uint32_t pedidos = 0;
+  uint32_t entradas = 0;        // logins e contas novas
+  uint32_t gravacoes = 0;       // PUT /api/data
+  int contas = 0;
+  char ultimo[22] = "";         // última ação (cabe numa linha do ecrã)
+  uint32_t ultimoEm = 0;        // millis() da última ação
+  bool houveAtividade = false;
+} stats;
+
+void registarAcao(const char *o_que, const String &user) {
+  snprintf(stats.ultimo, sizeof(stats.ultimo), "%s %s", o_que, user.c_str());
+  stats.ultimoEm = millis();
+  stats.houveAtividade = true;
+}
 
 // ----------------------------------------------------------------- utilitários
 String hexOf(const uint8_t *b, size_t n) {
@@ -192,6 +211,8 @@ void setup() {
   delay(300);
   Serial.println();
   Serial.println("=== Organizador · servidor " + String(VERSION) + " ===");
+  ecraIniciar();
+  ecraMensagem("Organizador", ("servidor " + String(VERSION)).c_str(), "a arrancar...");
 
 #if defined(ESP8266)
   bool fsOk = LittleFS.begin();       // na ESP8266 formata sozinho se for preciso
@@ -200,8 +221,13 @@ void setup() {
 #endif
   if (!fsOk) Serial.println("ERRO: não consegui iniciar o armazenamento (LittleFS)");
   if (!LittleFS.exists("/data")) LittleFS.mkdir("/data");
+  {
+    JsonDocument users; loadJson("/users.json", users);
+    stats.contas = users.as<JsonObject>().size();
+  }
 
   WiFi.mode(WIFI_STA);
+  WiFi.setAutoReconnect(true);
 #if defined(ESP8266)
   WiFi.hostname(HOSTNAME);
 #else
@@ -209,17 +235,14 @@ void setup() {
 #endif
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
   Serial.print("A ligar ao Wi-Fi \"" WIFI_SSID "\"");
+  ecraMensagem("A ligar Wi-Fi", WIFI_SSID);
   unsigned long t0 = millis();
   while (WiFi.status() != WL_CONNECTED && millis() - t0 < 20000) { delay(500); Serial.print("."); }
   Serial.println();
   if (WiFi.status() != WL_CONNECTED) {
-    Serial.println("ERRO: não liguei ao Wi-Fi. Confirma o nome e a palavra-passe em config.h (rede de 2,4 GHz).");
-    return;
-  }
-  Serial.println("Ligado! Endereço: http://" + WiFi.localIP().toString());
-  if (MDNS.begin(HOSTNAME)) {
-    MDNS.addService("http", "tcp", 80);
-    Serial.println("Também em:        http://" HOSTNAME ".local");
+    // Não desistir: depois de uma falha de luz o router demora mais a arrancar do
+    // que a placa. O servidor arranca na mesma e fica disponível quando o Wi-Fi ligar.
+    Serial.println("AVISO: ainda não liguei ao Wi-Fi. Continuo a tentar. Se não ligar, confirma o nome e a palavra-passe em config.h (rede de 2,4 GHz).");
   }
 
   // Permitir pedidos vindos da app (outra origem)
@@ -228,17 +251,24 @@ void setup() {
   DefaultHeaders::Instance().addHeader("Access-Control-Allow-Methods", "GET, POST, PUT, OPTIONS");
   DefaultHeaders::Instance().addHeader("Access-Control-Allow-Private-Network", "true");
 
+  // Contar todos os pedidos (para o ecrã e o /api/ping)
+  server.addMiddleware([](AsyncWebServerRequest *req, ArMiddlewareNext next) {
+    stats.pedidos++;
+    next();
+  });
+
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *req) { 
     // Enviar como bytes em PROGMEM: obrigatório na ESP8266, inofensivo na ESP32.
     req->send(200, "text/html; charset=utf-8", (const uint8_t *)TEST_PAGE, strlen_P(TEST_PAGE));
   });
 
   server.on("/api/ping", HTTP_GET, [](AsyncWebServerRequest *req) {
-    JsonDocument users; loadJson("/users.json", users);
     JsonDocument d;
     d["ok"] = true; d["app"] = "organizador"; d["version"] = VERSION;
-    d["users"] = users.as<JsonObject>().size();
+    d["users"] = stats.contas;
     d["freeKB"] = freeKB();
+    d["uptimeS"] = millis() / 1000;
+    d["requests"] = stats.pedidos;
     sendJson(req, 200, d);
   });
 
@@ -256,6 +286,9 @@ void setup() {
     users[user]["hash"] = hashPassword(salt, pass);
     users[user]["created"] = millis();
     if (!saveJson("/users.json", users)) return sendError(req, 500, "Erro a guardar a conta");
+    stats.contas = users.as<JsonObject>().size();
+    stats.entradas++;
+    registarAcao("nova conta", user);
     JsonDocument d; d["ok"] = true; d["user"] = user; d["token"] = newToken(user);
     sendJson(req, 200, d);
   }));
@@ -270,6 +303,8 @@ void setup() {
     String salt = users[user]["salt"] | "";
     String hash = users[user]["hash"] | "";
     if (hashPassword(salt, pass) != hash) return sendError(req, 401, "Utilizador ou palavra-passe errados");
+    stats.entradas++;
+    registarAcao("entrou", user);
     JsonDocument d; d["ok"] = true; d["user"] = user; d["token"] = newToken(user);
     sendJson(req, 200, d);
   }));
@@ -307,6 +342,8 @@ void setup() {
       if (first != '{') { LittleFS.remove(tmp); return sendError(req, 400, "Os dados têm de ser um objeto JSON"); }
       LittleFS.remove(dataPath(user));
       LittleFS.rename(tmp, dataPath(user));
+      stats.gravacoes++;
+      registarAcao("guardou", user);
       JsonDocument d; d["ok"] = true; d["savedAt"] = millis();
       sendJson(req, 200, d);
     },
@@ -339,15 +376,55 @@ void setup() {
   Serial.println("Servidor pronto. Abre o endereço acima num browser na mesma rede Wi-Fi.");
 }
 
+// Chamado sempre que o Wi-Fi (re)liga: mostra o endereço e liga o mDNS.
+void quandoWifiLigar() {
+  static bool mdnsLigado = false;
+  Serial.println("Ligado! Endereço: http://" + WiFi.localIP().toString());
+  if (!mdnsLigado && MDNS.begin(HOSTNAME)) {
+    MDNS.addService("http", "tcp", 80);
+    mdnsLigado = true;
+    Serial.println("Também em:        http://" HOSTNAME ".local");
+  }
+}
+
 void loop() {
+  static bool estavaLigado = false;
+  bool ligado = WiFi.status() == WL_CONNECTED;
+  if (ligado && !estavaLigado) quandoWifiLigar();
+  if (!ligado && estavaLigado) Serial.println("Wi-Fi perdido, a ligar outra vez…");
+  estavaLigado = ligado;
+
 #if defined(ESP8266)
-  MDNS.update();   // na ESP8266 o mDNS precisa de ser atendido no loop
+  if (ligado) MDNS.update();   // na ESP8266 o mDNS precisa de ser atendido no loop
 #endif
-  // Volta a ligar se o Wi-Fi cair
-  static unsigned long last = 0;
-  if (millis() - last > 10000) {
-    last = millis();
-    if (WiFi.status() != WL_CONNECTED) { Serial.println("Wi-Fi perdido, a ligar outra vez…"); WiFi.reconnect(); }
+
+  // Se o Wi-Fi estiver em baixo, insistir a cada 10 s
+  static unsigned long ultimaTentativa = 0;
+  if (!ligado && millis() - ultimaTentativa > 10000) {
+    ultimaTentativa = millis();
+    WiFi.reconnect();
+  }
+
+  // Atualizar o ecrã 1 vez por segundo
+  static unsigned long ultimoEcra = 0;
+  if (millis() - ultimoEcra >= 1000) {
+    ultimoEcra = millis();
+    EcraDados d;
+    d.versao = VERSION;
+    d.wifiLigado = ligado;
+    d.rede = WIFI_SSID;
+    d.ip = ligado ? WiFi.localIP().toString() : String("-");
+    d.rssi = ligado ? WiFi.RSSI() : -100;
+    d.segundos = millis() / 1000;
+    d.contas = stats.contas;
+    d.pedidos = stats.pedidos;
+    d.entradas = stats.entradas;
+    d.gravacoes = stats.gravacoes;
+    d.livreKB = freeKB();
+    d.ramKB = ESP.getFreeHeap() / 1024;
+    d.ultimo = stats.ultimo;
+    d.ultimoHa = stats.houveAtividade ? (millis() - stats.ultimoEm) / 1000 : 0xFFFFFFFF;
+    ecraDesenhar(d);
   }
   delay(10);
 }
