@@ -12,18 +12,29 @@
 //   • "ArduinoJson"          (autor: Benoit Blanchon, versão 7)
 //
 //  Placa: "DOIT ESP32 DEVKIT V1" (ou "ESP32 Dev Module")
+//
+//  Também funciona em ESP8266 (ex.: NodeMCU / ideaspark com OLED, placa
+//  "NodeMCU 1.0 (ESP-12E Module)"). Nesse caso, em vez de "Async TCP",
+//  instala "ESP Async TCP" (autor: ESP32Async).
 // ===========================================================================
-#include <WiFi.h>
-#include <ESPmDNS.h>
+#include <ArduinoJson.h>   // tem de vir antes de AsyncJson.h
+#if defined(ESP8266)
+  #include <ESP8266WiFi.h>
+  #include <ESP8266mDNS.h>
+  #include <ESPAsyncTCP.h>
+  #include <bearssl/bearssl_hash.h>
+#else
+  #include <WiFi.h>
+  #include <ESPmDNS.h>
+  #include <AsyncTCP.h>
+  #include "mbedtls/sha256.h"
+#endif
 #include <LittleFS.h>
-#include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 #include <AsyncJson.h>
-#include <ArduinoJson.h>
-#include "mbedtls/sha256.h"
 #include "config.h"
 
-static const char *VERSION = "0.1-beta";
+static const char *VERSION = "0.2-beta";
 AsyncWebServer server(80);
 
 // ----------------------------------------------------------------- utilitários
@@ -34,26 +45,57 @@ String hexOf(const uint8_t *b, size_t n) {
   return s;
 }
 
+// Número aleatório do gerador de hardware (ESP32 e ESP8266 têm um).
+uint32_t hwRandom() {
+#if defined(ESP8266)
+  return RANDOM_REG32;
+#else
+  return esp_random();
+#endif
+}
+
 String randomHex(size_t bytes) {
   uint8_t buf[32];
   if (bytes > sizeof(buf)) bytes = sizeof(buf);
-  for (size_t i = 0; i < bytes; i++) buf[i] = esp_random() & 0xFF;
+  for (size_t i = 0; i < bytes; i++) buf[i] = hwRandom() & 0xFF;
   return hexOf(buf, bytes);
+}
+
+void sha256(const uint8_t *data, size_t len, uint8_t out[32]) {
+#if defined(ESP8266)
+  br_sha256_context ctx;
+  br_sha256_init(&ctx);
+  br_sha256_update(&ctx, data, len);
+  br_sha256_out(&ctx, out);
+#else
+  mbedtls_sha256(data, len, out, 0);
+#endif
 }
 
 // Hash da palavra-passe: SHA-256 com salt, repetido 5000 vezes (abranda ataques).
 String hashPassword(const String &salt, const String &pass) {
   uint8_t out[32];
   String first = salt + ":" + pass;
-  mbedtls_sha256((const unsigned char *)first.c_str(), first.length(), out, 0);
+  sha256((const uint8_t *)first.c_str(), first.length(), out);
   uint8_t buf[64];
   size_t sl = salt.length() > 32 ? 32 : salt.length();
   for (int i = 0; i < 5000; i++) {
     memcpy(buf, out, 32);
     memcpy(buf + 32, salt.c_str(), sl);
-    mbedtls_sha256(buf, 32 + sl, out, 0);
+    sha256(buf, 32 + sl, out);
   }
   return hexOf(out, 32);
+}
+
+// Espaço livre no armazenamento (a API é diferente nas duas placas).
+size_t freeKB() {
+#if defined(ESP8266)
+  FSInfo info;
+  LittleFS.info(info);
+  return (info.totalBytes - info.usedBytes) / 1024;
+#else
+  return (LittleFS.totalBytes() - LittleFS.usedBytes()) / 1024;
+#endif
 }
 
 bool loadJson(const char *path, JsonDocument &doc) {
@@ -102,7 +144,7 @@ String userFromRequest(AsyncWebServerRequest *req) {
 void sendJson(AsyncWebServerRequest *req, int code, JsonDocument &doc) {
   String out;
   serializeJson(doc, out);
-  req->send(code, "application/json", out);
+  req->send(code, "application/json; charset=utf-8", out);
 }
 
 void sendError(AsyncWebServerRequest *req, int code, const char *msg) {
@@ -151,11 +193,20 @@ void setup() {
   Serial.println();
   Serial.println("=== Organizador · servidor " + String(VERSION) + " ===");
 
-  if (!LittleFS.begin(true)) Serial.println("ERRO: não consegui iniciar o armazenamento (LittleFS)");
+#if defined(ESP8266)
+  bool fsOk = LittleFS.begin();       // na ESP8266 formata sozinho se for preciso
+#else
+  bool fsOk = LittleFS.begin(true);   // true = formatar se estiver vazio
+#endif
+  if (!fsOk) Serial.println("ERRO: não consegui iniciar o armazenamento (LittleFS)");
   if (!LittleFS.exists("/data")) LittleFS.mkdir("/data");
 
   WiFi.mode(WIFI_STA);
+#if defined(ESP8266)
+  WiFi.hostname(HOSTNAME);
+#else
   WiFi.setHostname(HOSTNAME);
+#endif
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
   Serial.print("A ligar ao Wi-Fi \"" WIFI_SSID "\"");
   unsigned long t0 = millis();
@@ -177,14 +228,17 @@ void setup() {
   DefaultHeaders::Instance().addHeader("Access-Control-Allow-Methods", "GET, POST, PUT, OPTIONS");
   DefaultHeaders::Instance().addHeader("Access-Control-Allow-Private-Network", "true");
 
-  server.on("/", HTTP_GET, [](AsyncWebServerRequest *req) { req->send(200, "text/html; charset=utf-8", TEST_PAGE); });
+  server.on("/", HTTP_GET, [](AsyncWebServerRequest *req) { 
+    // Enviar como bytes em PROGMEM: obrigatório na ESP8266, inofensivo na ESP32.
+    req->send(200, "text/html; charset=utf-8", (const uint8_t *)TEST_PAGE, strlen_P(TEST_PAGE));
+  });
 
   server.on("/api/ping", HTTP_GET, [](AsyncWebServerRequest *req) {
     JsonDocument users; loadJson("/users.json", users);
     JsonDocument d;
     d["ok"] = true; d["app"] = "organizador"; d["version"] = VERSION;
     d["users"] = users.as<JsonObject>().size();
-    d["freeKB"] = (LittleFS.totalBytes() - LittleFS.usedBytes()) / 1024;
+    d["freeKB"] = freeKB();
     sendJson(req, 200, d);
   });
 
@@ -228,7 +282,7 @@ void setup() {
       tokens.remove(token);
       saveJson("/tokens.json", tokens);
     }
-    req->send(200, "application/json", "{\"ok\":true}");
+    req->send(200, "application/json; charset=utf-8", "{\"ok\":true}");
   });
 
   // Ler os dados da conta
@@ -236,8 +290,8 @@ void setup() {
     String user = userFromRequest(req);
     if (user == "") return sendError(req, 401, "Sessão inválida. Entra outra vez.");
     String path = dataPath(user);
-    if (!LittleFS.exists(path)) return req->send(200, "application/json", "{}");
-    req->send(LittleFS, path, "application/json");
+    if (!LittleFS.exists(path)) return req->send(200, "application/json; charset=utf-8", "{}");
+    req->send(LittleFS, path, "application/json; charset=utf-8");
   });
 
   // Guardar os dados da conta (recebe o JSON aos bocados e grava em ficheiro)
@@ -278,7 +332,7 @@ void setup() {
 
   server.onNotFound([](AsyncWebServerRequest *req) {
     if (req->method() == HTTP_OPTIONS) return req->send(204);
-    req->send(404, "application/json", "{\"ok\":false,\"error\":\"não encontrado\"}");
+    req->send(404, "application/json; charset=utf-8", "{\"ok\":false,\"error\":\"não encontrado\"}");
   });
 
   server.begin();
@@ -286,6 +340,9 @@ void setup() {
 }
 
 void loop() {
+#if defined(ESP8266)
+  MDNS.update();   // na ESP8266 o mDNS precisa de ser atendido no loop
+#endif
   // Volta a ligar se o Wi-Fi cair
   static unsigned long last = 0;
   if (millis() - last > 10000) {
