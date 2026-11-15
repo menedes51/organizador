@@ -96,7 +96,7 @@ const icon = (name, cls = '') =>
   `<svg class="i ${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ICONS[name]}</svg>`;
 
 /* ------------------------------------------------------------------ data */
-const APP_VERSION = '4.1';
+const APP_VERSION = '4.2';
 const KEY = 'organizador.v2';
 const UI_KEY = 'organizador.ui';
 const CAT_DEFAULTS = [
@@ -457,8 +457,34 @@ function catChips() {
   </div>`;
 }
 
+const VIEW_NAMES = { today: 'Hoje', upcoming: 'Próximos', calendar: 'Calendário', list: 'Lista', lists: 'Mais', search: 'Procurar', focus: 'Foco',
+  stats: 'Estatísticas', subjects: 'Disciplinas', subject: 'Disciplina', projects: 'Trabalhos', project: 'Trabalho', appearance: 'Aparência' };
+function parentOf(v) {
+  if (v === 'subject') return 'subjects';
+  if (v === 'project') return 'projects';
+  if (['list', 'subjects', 'stats', 'upcoming', 'appearance'].includes(v)) return isMobile() ? 'lists' : 'today';
+  return 'today';
+}
+function needsBack() {
+  if (['subject', 'project', 'list', 'appearance'].includes(ui.view)) return true;
+  if (ui.view === 'calendar' && ui.calMode === 'timetable' && navStack.length && navStack[navStack.length - 1].view === 'calendar') return true;
+  return isMobile() && ['subjects', 'stats', 'upcoming'].includes(ui.view);
+}
+function backLabel() {
+  const top = navStack[navStack.length - 1];
+  if (top) {
+    if (top.view === 'calendar' && ui.view === 'calendar') return { day: 'Dia', week: 'Semana', month: 'Mês' }[top.mode] || 'Calendário';
+    if (top.view === 'subject') return subjectById(top.id)?.name || 'Disciplina';
+    if (top.view === 'project') return projectById(top.id)?.name || 'Trabalho';
+    if (top.view === 'list') return listById(top.id)?.name || 'Lista';
+    return VIEW_NAMES[top.view] || 'Voltar';
+  }
+  return VIEW_NAMES[parentOf(ui.view)] || 'Voltar';
+}
+
 function head(title, sub = '', extra = '', actions = '') {
-  return `<div class="page-head">
+  const back = needsBack() ? `<button class="back-btn" data-back>${icon('chevL')}<span>${esc(backLabel())}</span></button>` : '';
+  return `${back}<div class="page-head">
       <div><h1 class="page-title">${esc(title)}</h1>${sub ? `<div class="page-sub">${sub}</div>` : ''}${extra}</div>
       <div class="head-actions">${actions}<button class="icon-btn m-only" data-nav="search" aria-label="Procurar">${icon('search')}</button></div>
     </div>`;
@@ -781,7 +807,7 @@ function viewLists() { // vista de listas/categorias (telemóvel)
     <div class="rows">
       <button class="row" data-install>${icon('phone')}<span class="label">Instalar app</span></button>
       <button class="row" data-accent>${icon('palette')}<span class="label">Cor de destaque</span><span class="dot" style="--c:var(--accent);width:12px;height:12px"></span></button>
-      <button class="row" data-theme-toggle>${icon('sliders')}<span class="label">Tema e vista</span><span class="count">${{ light: 'Claro', dark: 'Escuro', auto: 'Automático' }[themePref()]}${localStorage.getItem('organizador.density') ? ' · compacta' : ''}</span></button>
+      <button class="row" data-nav="appearance">${icon('sliders')}<span class="label">Temas e personalização</span><span class="count">${(THEMES.find(x => x[0] === themePref()) || THEMES[0])[1]}</span>${icon('chevR')}</button>
     </div>
     <div class="empty" style="padding-top:4px">As tarefas ficam guardadas só neste dispositivo. Usa Exportar / Importar cópia para as passar para outro.<br><br>Versão ${APP_VERSION}</div>`;
   return { top: head('Mais'), content };
@@ -835,7 +861,7 @@ function renderSidebar() {
 
 function renderTabbar() {
   const tab = (v, ic, label) => {
-    const active = ui.view === v || (v === 'lists' && ['list', 'stats', 'subjects', 'subject', 'upcoming'].includes(ui.view)) || (v === 'projects' && ui.view === 'project');
+    const active = ui.view === v || (v === 'lists' && ['list', 'stats', 'subjects', 'subject', 'upcoming', 'appearance'].includes(ui.view)) || (v === 'projects' && ui.view === 'project');
     return `<button class="tab ${active ? 'active' : ''}" data-nav="${v}">${icon(ic)}${label}</button>`;
   };
   $('#tabbar').innerHTML = tab('today', 'today', 'Hoje') + tab('calendar', 'calendar', 'Calendário') +
@@ -843,7 +869,7 @@ function renderTabbar() {
 }
 
 function render() {
-  const v = { today: viewToday, upcoming: viewUpcoming, calendar: viewCalendar, list: viewList, lists: viewLists, search: viewSearch, focus: viewFocus, stats: viewStats, subjects: viewSubjects, subject: viewSubject, projects: viewProjects, project: viewProject }[ui.view] || viewToday;
+  const v = { today: viewToday, upcoming: viewUpcoming, calendar: viewCalendar, list: viewList, lists: viewLists, search: viewSearch, focus: viewFocus, stats: viewStats, subjects: viewSubjects, subject: viewSubject, projects: viewProjects, project: viewProject, appearance: viewAppearance }[ui.view] || viewToday;
   const { top, content } = v();
   const sc = $('#tgScroll');
   if (sc) ui.tgScroll = sc.scrollTop;
@@ -861,7 +887,7 @@ function render() {
     }
   }
   $('#content').innerHTML = content;
-  const noComposer = ['lists', 'search', 'focus', 'stats', 'subjects', 'projects', 'project'].includes(ui.view) || (ui.view === 'calendar' && ui.calMode === 'timetable');
+  const noComposer = ['lists', 'search', 'focus', 'stats', 'subjects', 'projects', 'project', 'appearance'].includes(ui.view) || (ui.view === 'calendar' && ui.calMode === 'timetable');
   $('#composer').classList.toggle('hidden', noComposer);
   document.body.classList.toggle('lists-view', noComposer);
   document.body.classList.toggle('wide', (ui.view === 'calendar' && (ui.calMode === 'week' || ui.calMode === 'timetable')) || ui.view === 'project');
@@ -1310,6 +1336,36 @@ function addTopic(text) {
   ui.kaddFocus = true;
 }
 
+/* ------------------------------------------------------------------ aparência */
+function viewAppearance() {
+  const p = themePref(), acc = localStorage.getItem('organizador.accent') || '';
+  const segP = (k, opts) => `<div class="seg wide">${opts.map(([v, l]) => `<button class="${pref(k) === v ? 'on' : ''}" data-set-pref="${k}" data-val="${v}">${l}</button>`).join('')}</div>`;
+  const card = ([k, n, c]) => {
+    const cols = c || (matchMedia('(prefers-color-scheme: dark)').matches ? THEMES[2][2] : THEMES[1][2]);
+    const split = !c ? `background:linear-gradient(135deg, ${THEMES[1][2][0]} 50%, ${THEMES[2][2][0]} 50%)` : `background:${cols[0]}`;
+    return `<button class="theme-card ${p === k ? 'on' : ''}" data-set-theme="${k}">
+      <span class="tp" style="${split}"><i style="background:${cols[1]}"></i><b style="background:${acc || cols[3]}"></b><em style="background:${cols[2]}"></em><em style="background:${cols[2]};width:40%"></em></span>
+      <span class="tn">${n}</span></button>`;
+  };
+  const content = `
+    <div class="section"><div class="section-title">Tema</div><div class="theme-grid">${THEMES.map(card).join('')}</div></div>
+    <div class="section"><div class="section-title">Cor de destaque</div>
+      <div class="accent-row">${ACCENTS.map(([n, c]) => `<button class="accent-dot ${acc === (c || '') ? 'on' : ''}" style="--c:${c || 'var(--theme-accent, #6b78e5)'}" data-set-accent="${c || ''}" title="${n}"><span>${n}</span></button>`).join('')}</div></div>
+    <div class="pref-list">
+      <div class="pref"><div><b>Tamanho do texto</b><span>Afeta tarefas, listas e títulos</span></div>${segP('text', [['small', 'Pequeno'], ['normal', 'Normal'], ['large', 'Grande']])}</div>
+      <div class="pref"><div><b>Densidade</b><span>Compacta mostra mais tarefas no ecrã</span></div>${segP('density', [['', 'Normal'], ['compact', 'Compacta']])}</div>
+      <div class="pref"><div><b>Cantos</b><span>Botões e cartões arredondados ou retos</span></div>${segP('corners', [['round', 'Arredondados'], ['square', 'Retos']])}</div>
+      <div class="pref"><div><b>Abrir a app em</b><span>A página que aparece ao abrir</span></div>
+        <select class="field" data-pref-select="start">${[['last', 'Onde fiquei'], ['today', 'Hoje'], ['calendar', 'Calendário'], ['projects', 'Trabalhos'], ['subjects', 'Disciplinas'], ['focus', 'Foco']].map(([v, l]) => `<option value="${v}" ${pref('start') === v ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
+    </div>
+    <div class="section" style="margin-top:22px"><div class="section-title">Pré-visualização</div>
+      ${taskRow({ id: '__p1', title: 'Rever apontamentos de Álgebra', date: today(), time: '18:00', cat: 'faculdade', created: 0, done: false, subtasks: [{ done: true }, { done: false }] }, { showDate: false })}
+      ${taskRow({ id: '__p2', title: 'Jantar com o grupo', date: addDays(today(), 1), cat: 'social', important: true, created: 0, done: false })}
+    </div>`;
+  return { top: head('Aparência', 'Temas, cores e personalização'), content };
+}
+document.addEventListener('change', e => { if (e.target.matches && e.target.matches('[data-pref-select]')) setPref(e.target.dataset.prefSelect, e.target.value); });
+
 /* ------------------------------------------------------------------ datas por texto */
 const LB = '(?<![\\p{L}\\d])', RB = '(?![\\p{L}\\d])';
 const WD_RE = [
@@ -1574,10 +1630,12 @@ function openTask(id) {
   ui.openTask = id;
   renderDetail();
   document.body.classList.add('detail-open');
+  if (!ui.detailPushed) { history.pushState({ d: 1 }, ''); ui.detailPushed = true; }
   render();
 }
-function closeDetail() {
+function closeDetail(fromPop) {
   if (!ui.openTask && !ui.openEvent) return;
+  if (ui.detailPushed) { ui.detailPushed = false; if (fromPop !== true) { ignorePop++; history.back(); } }
   if (ui.openEvent) {
     const ev = eventById(ui.openEvent.id);
     if (ev && !ev.title.trim()) touch(ev, { title: ev.isClass ? 'Aula' : 'Evento' }), saveLocal();
@@ -1602,7 +1660,7 @@ function renderDetail() {
   el.innerHTML = `
     <div class="grabber"></div>
     <div class="detail-head">
-      <span>${t.done ? 'Concluída' : 'Tarefa'}</span>
+      <button class="back-btn sm" data-close-detail>${icon('chevL')}<span>${t.done ? 'Concluída' : 'Tarefa'}</span></button>
       <button class="icon-btn" data-close-detail aria-label="Fechar">${icon('x')}</button>
     </div>
     <div class="detail-body">
@@ -1756,7 +1814,7 @@ function renderDetail() {
   if (fb) fb.addEventListener('click', () => { pomo.taskId = id; savePomo(); closeDetail(); setView('focus'); });
   el.querySelector('[data-d-toggle]').addEventListener('click', () => { toggleTask(id); renderDetail(); });
   el.querySelector('[data-d-delete]').addEventListener('click', () => deleteTask(id));
-  el.querySelector('[data-close-detail]').addEventListener('click', closeDetail);
+  el.querySelectorAll('[data-close-detail]').forEach(b => b.addEventListener('click', () => closeDetail()));
 }
 
 function openEvent(id, occ) {
@@ -1765,6 +1823,7 @@ function openEvent(id, occ) {
   ui.openEvent = { id, occ: occ || null };
   renderEventDetail();
   document.body.classList.add('detail-open');
+  if (!ui.detailPushed) { history.pushState({ d: 1 }, ''); ui.detailPushed = true; }
   render();
 }
 
@@ -1778,7 +1837,7 @@ function renderEventDetail() {
   el.innerHTML = `
     <div class="grabber"></div>
     <div class="detail-head">
-      <span>${ev.isClass ? 'Aula' : 'Evento'}${occ && r.freq !== 'none' ? ' · ' + fmtLong(occ) : ''}</span>
+      <button class="back-btn sm" data-close-detail>${icon('chevL')}<span>${ev.isClass ? 'Aula' : 'Evento'}${occ && r.freq !== 'none' ? ' · ' + fmtLong(occ) : ''}</span></button>
       <button class="icon-btn" data-close-detail aria-label="Fechar">${icon('x')}</button>
     </div>
     <div class="detail-body">
@@ -1864,7 +1923,7 @@ function renderEventDetail() {
       ]);
     } else deleteEvent(id, null, 'all');
   });
-  q('[data-close-detail]').addEventListener('click', closeDetail);
+  el.querySelectorAll('[data-close-detail]').forEach(b => b.addEventListener('click', () => closeDetail()));
 }
 
 /* ------------------------------------------------------------------ toast */
@@ -1879,8 +1938,35 @@ function toast(msg, actionLabel, action) {
 }
 
 /* ------------------------------------------------------------------ navigation */
-function setView(view, listId = null) {
-  if (ui.openTask || ui.openEvent) closeDetail();
+const navStack = [];
+let ignorePop = 0;
+const curId = () => (ui.view === 'list' ? ui.listId : ui.view === 'subject' ? ui.subjectId : ui.view === 'project' ? ui.projectId : null);
+function pushNav(entry, replace) {
+  navStack.push(entry);
+  if (navStack.length > 40) navStack.shift();
+  if (replace) history.replaceState({ n: navStack.length }, ''); else history.pushState({ n: navStack.length }, '');
+}
+function goBack() {
+  if (ui.openTask || ui.openEvent) return closeDetail();
+  if (navStack.length) return history.back();
+  setView(parentOf(ui.view), null, { back: true });
+}
+function restoreNav(prev) {
+  if (prev.view === 'calendar' && prev.mode) { ui.calMode = prev.mode; ui.tgScroll = undefined; ui.tgScrollX = undefined; }
+  setView(prev.view, prev.id, { back: true });
+}
+addEventListener('popstate', () => {
+  if (ignorePop) { ignorePop--; return; }
+  if (ui.openTask || ui.openEvent) return closeDetail(true);
+  closeMenu();
+  const prev = navStack.pop();
+  if (prev) restoreNav(prev);
+});
+
+function setView(view, listId = null, opts = {}) {
+  const hadDetail = !!ui.detailPushed;
+  if (ui.openTask || ui.openEvent) closeDetail(true);
+  if (!opts.back && (view !== ui.view || listId !== curId())) pushNav({ view: ui.view, id: curId(), mode: ui.calMode }, hadDetail);
   ui.view = view;
   ui.listId = view === 'list' ? listId : null;
   if (view === 'subject') ui.subjectId = listId;
@@ -1899,30 +1985,55 @@ function setView(view, listId = null) {
   if (view === 'search') setTimeout(() => { const i = $('#searchInput'); if (i) { i.focus(); i.select(); } }, 30);
 }
 
+const THEMES = [
+  ['auto', 'Automático', null],
+  ['light', 'Claro', ['#fafaf9', '#ffffff', '#1c1c1f', '#5561d6']],
+  ['dark', 'Escuro', ['#111113', '#18181b', '#ececef', '#7b84e6']],
+  ['oled', 'Preto puro', ['#000000', '#0c0c0d', '#ededf0', '#8a93f0']],
+  ['midnight', 'Meia-noite', ['#0d1117', '#151b26', '#e6edf3', '#6d8cff']],
+  ['forest', 'Floresta', ['#0f1412', '#161d1a', '#e4ece7', '#4fb386']],
+  ['sand', 'Areia', ['#f6f1e8', '#fffdf8', '#2b2620', '#b06b3a']],
+  ['lavender', 'Lavanda', ['#f6f5fb', '#ffffff', '#1f1d2b', '#7a5cd6']],
+  ['mint', 'Menta', ['#f1f7f4', '#ffffff', '#16231d', '#2f8f6a']],
+];
 const themePref = () => localStorage.getItem('organizador.theme') || 'auto';
 function applyTheme() {
   const p = themePref();
-  const t = p === 'auto' ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : p;
+  const t = p === 'auto' ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : (THEMES.some(x => x[0] === p) ? p : 'dark');
   document.documentElement.dataset.theme = t;
   const m = $('meta[name=theme-color]');
-  if (m) m.content = t === 'dark' ? '#111113' : '#fafaf9';
+  if (m) m.content = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim() || '#111113';
+}
+const PREFS = {
+  text: ['organizador.text', 'normal'],
+  corners: ['organizador.corners', 'round'],
+  start: ['organizador.start', 'last'],
+  density: ['organizador.density', ''],
+};
+const pref = k => localStorage.getItem(PREFS[k][0]) || PREFS[k][1];
+function applyPrefs() {
+  const h = document.documentElement;
+  h.dataset.text = pref('text');
+  h.classList.toggle('square', pref('corners') === 'square');
+  h.classList.toggle('compact', pref('density') === 'compact');
+}
+function setPref(k, v) {
+  if (!v || v === PREFS[k][1]) localStorage.removeItem(PREFS[k][0]); else localStorage.setItem(PREFS[k][0], v);
+  applyPrefs();
+  render();
 }
 function setTheme(p) { localStorage.setItem('organizador.theme', p); applyTheme(); render(); }
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { if (themePref() === 'auto') { applyTheme(); render(); } });
-function setDensity(on) {
-  if (on) localStorage.setItem('organizador.density', 'compact'); else localStorage.removeItem('organizador.density');
-  document.documentElement.classList.toggle('compact', !!on);
-  render();
-}
+function setDensity(on) { setPref('density', on ? 'compact' : ''); }
 function appearanceMenu(anchor) {
   const p = themePref(), compact = !!localStorage.getItem('organizador.density');
   openMenu(anchor, [
-    { label: 'Tema claro', icon: 'sun', checked: p === 'light', onClick: () => setTheme('light') },
-    { label: 'Tema escuro', icon: 'moon', checked: p === 'dark', onClick: () => setTheme('dark') },
-    { label: 'Automático (segue o sistema)', icon: 'sliders', checked: p === 'auto', onClick: () => setTheme('auto') },
+    ...THEMES.map(([k, n, c]) => ({ label: k === 'auto' ? 'Automático (segue o sistema)' : n, dot: c ? c[0] : null, icon: c ? null : 'sliders', checked: p === k, onClick: () => setTheme(k) })),
     { sep: true },
     { label: 'Cor de destaque…', icon: 'palette', onClick: () => accentMenu(anchor) },
     { label: 'Vista compacta', icon: 'list', checked: compact, onClick: () => setDensity(!compact) },
+    { sep: true },
+    { label: 'Mais temas e personalização…', icon: 'sliders', onClick: () => setView('appearance') },
   ]);
 }
 
@@ -1945,6 +2056,7 @@ document.addEventListener('click', e => {
   }
   if (q('[data-grip]')) return;
   if (q('[data-kadd]')) return;
+  if (q('[data-task^="__p"], [data-toggle^="__p"]')) return;
   if ((el = q('[data-event]'))) return openEvent(el.dataset.event, el.dataset.occ || null);
   if ((el = q('[data-task]'))) return openTask(el.dataset.task);
   if ((el = q('[data-slot-day]'))) {
@@ -1960,6 +2072,8 @@ document.addEventListener('click', e => {
     return;
   }
   if ((el = q('[data-cal-mode]'))) {
+    if (el.dataset.calMode === ui.calMode) return;
+    if (el.dataset.calMode === 'timetable') pushNav({ view: 'calendar', id: null, mode: ui.calMode });
     ui.calMode = el.dataset.calMode;
     ui.calMonth = ui.calSel.slice(0, 7);
     ui.tgScroll = undefined;
@@ -2005,6 +2119,10 @@ document.addEventListener('click', e => {
   if (q('[data-proj-members]')) return editProject(ui.projectId);
   if ((el = q('[data-proj-who]'))) { const k = el.dataset.projWho; ui.projWho = k === '__all' ? null : k; return render(); }
   if (q('[data-move-overdue]')) return moveOverdue();
+  if (q('[data-back]')) return goBack();
+  if ((el = q('[data-set-theme]'))) return setTheme(el.dataset.setTheme);
+  if ((el = q('[data-set-accent]'))) { const c = el.dataset.setAccent; if (c) localStorage.setItem('organizador.accent', c); else localStorage.removeItem('organizador.accent'); applyAccent(); return render(); }
+  if ((el = q('[data-set-pref]'))) return setPref(el.dataset.setPref, el.dataset.val);
   if ((el = q('[data-accent]'))) return accentMenu(el);
   if ((el = q('[data-pomo]'))) return pomoAction(el.dataset.pomo);
   if ((el = q('[data-pomo-phase]'))) return pomoSetPhase(el.dataset.pomoPhase);
@@ -2737,15 +2855,23 @@ function onboarding() {
 }
 
 /* ------------------------------------------------------------------ start */
+applyPrefs();
+const launch = new URLSearchParams(location.search);
+if (pref('start') !== 'last') ui.view = pref('start');
+if (launch.get('view') && VIEW_NAMES[launch.get('view')]) ui.view = launch.get('view');
+if (launch.toString()) history.replaceState(null, '', location.pathname);
 if ((ui.view === 'list' && !listById(ui.listId)) || ui.view === 'search' || (ui.view === 'subject' && !subjectById(ui.subjectId)) || (ui.view === 'project' && !projectById(ui.projectId))) ui.view = 'today';
 COLLS.forEach(k => { db[k] ||= []; });
 migrateClasses();
 applyTheme();
-document.documentElement.classList.toggle('compact', !!localStorage.getItem('organizador.density'));
+
 applyAccent();
 (() => { const pill = document.createElement('button'); pill.id = 'focusPill'; pill.className = 'focus-pill'; pill.dataset.nav = 'focus'; pill.hidden = true; document.body.appendChild(pill); })();
 buildComposer();
 resetDraft();
 render();
-startNative().then(maybeOnboard);
+startNative().then(() => {
+  maybeOnboard();
+  if (launch.get('action') === 'new') { if (isMobile()) openComposerSheet(); else { const i = $('#newTitle'); if (i) i.focus(); } }
+});
 setTimeout(checkReminders, 1500);

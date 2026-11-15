@@ -17,7 +17,10 @@
     (function () {
       var p = localStorage.getItem('organizador.theme') || 'auto';
       var t = p === 'auto' ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : p;
-      if (localStorage.getItem('organizador.density')) document.documentElement.classList.add('compact');
+      var r = document.documentElement;
+      if (localStorage.getItem('organizador.density')) r.classList.add('compact');
+      if (localStorage.getItem('organizador.corners') === 'square') r.classList.add('square');
+      r.dataset.text = localStorage.getItem('organizador.text') || 'normal';
       document.documentElement.dataset.theme = t;
       var ac = localStorage.getItem('organizador.accent');
       if (ac) document.documentElement.style.setProperty('--accent', ac);
