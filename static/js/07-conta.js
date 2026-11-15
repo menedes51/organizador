@@ -204,7 +204,7 @@ function viewAccount() {
         <label>Utilizador<input class="modal-input" id="accUser" name="username" value="${esc(a.user || '')}" placeholder="ex.: ana.silva" autocomplete="username" autocapitalize="off" autocorrect="off" spellcheck="false" maxlength="24"></label>
         <label>Palavra-passe<input class="modal-input" id="accPass" name="password" type="password" autocomplete="${reg ? 'new-password' : 'current-password'}" maxlength="64"></label>
         ${reg ? '<label>Repetir palavra-passe<input class="modal-input" id="accPass2" type="password" autocomplete="new-password" maxlength="64"></label>' : ''}
-        <details class="acc-adv"${a.server !== DEFAULT_SERVER ? ' open' : ''}><summary>Servidor: <b>${esc(a.server.replace(/^https?:\/\//, ''))}</b> · mudar</summary>
+        <details class="acc-adv"${a.server !== DEFAULT_SERVER ? ' open' : ''}><summary>Servidor: <b id="accServerShow">${esc(a.server.replace(/^https?:\/\//, ''))}</b> · mudar</summary>
           <label>Endereço do servidor (a placa)<input class="modal-input" id="accServer" value="${esc(a.server.replace(/^http:\/\//, ''))}" placeholder="organizador.local" autocapitalize="off" autocorrect="off" spellcheck="false" inputmode="url"></label>
           <div class="acc-hint">Não é o teu nome: é o endereço da placa na rede, normalmente <b>organizador.local</b> ou o IP que aparece no ecrã da placa (ex.: 192.168.0.109).</div>
         </details>
@@ -292,6 +292,12 @@ document.addEventListener('click', e => {
     if (syncAutoOn()) syncNow(true);
     return render();
   }
+});
+// A linha "Servidor: …" acompanha o que se escreve no campo.
+document.addEventListener('input', e => {
+  if (e.target.id !== 'accServer') return;
+  const show = $('#accServerShow');
+  if (show) show.textContent = e.target.value.trim().replace(/^https?:\/\//i, '').replace(/\/+$/, '') || '—';
 });
 document.addEventListener('keydown', e => {
   if (e.key === 'Enter' && e.target.closest && e.target.closest('#accForm')) { e.preventDefault(); accSubmit(); }

@@ -4,6 +4,24 @@ Todas as mudanças à app ficam registadas aqui, da mais recente para a mais ant
 
 ---
 
+## v4.4.1 — 15 nov 2026 · Documentação do projeto
+
+### Novo
+- **Documentação** na pasta `docs/`: `Documentacao_Organizador.pdf` (11 páginas) e a fonte `documentacao.html`, de onde o PDF é gerado com o Chrome. Em relação à versão anterior do documento:
+  - nova secção **Quando algo corre mal**: servidor que não liga, aviso de HTTPS no telemóvel, sessão terminada, versão antiga, a permissão "Rede local" do macOS, cache dos testes, compilação no Windows e Wi-Fi de 5 GHz;
+  - novo quadro **Estado da placa**: endereço, contas existentes e o que fazer antes de chegarem colegas;
+  - a sincronização explica os casos-limite: a mesma tarefa mudada em dois sítios, dispositivos mais de 30 dias sem sincronizar, limite de 200 KB, sair da conta;
+  - o glossário ganha termos novos (conteúdo misto, origem, fusão, marca de apagado, código de estado, reserva de IP, Rede local do macOS…);
+  - correções: com conta, as tarefas também ficam na placa; o token ainda não expira; o IP verdadeiro da placa; a placa é carregada a partir do PC Windows.
+
+### Corrigido
+- No ecrã Conta, a linha "Servidor: … · mudar" passa a acompanhar o que se escreve no campo do endereço (antes continuava a mostrar `organizador.local`).
+
+### Alterado
+- `publicar.sh` passa a enviar também a pasta `docs/`.
+
+---
+
 ## v4.4 — 15 nov 2026 · Conta e sincronização com o servidor
 
 ### Novo
