@@ -1,4 +1,4 @@
-/* Organizador · 07-conta.js — Conta no servidor (ESP8266) e sincronização
+/* Organizador · 07-conta.js — Conta no servidor (Raspberry Pi; antes ESP8266) e sincronização
    (os ficheiros js/01…08 são carregados por esta ordem; partilham as mesmas variáveis globais)
 
    Como funciona a sincronização:
@@ -6,15 +6,18 @@
    2. junta-os com os deste dispositivo, item a item: fica a versão com o updatedAt mais recente
       (os itens apagados também têm updatedAt, por isso apagar passa para os outros dispositivos);
    3. PUT /api/data  → envia o resultado (o servidor substitui tudo o que tinha, por isso a fusão
-      é sempre feita aqui, antes de enviar). Se nada mudou, não envia (poupa a memória da placa).
+      é sempre feita aqui, antes de enviar). Se nada mudou, não envia (poupa o servidor).
    Se dois dispositivos sincronizarem ao mesmo tempo, nada se perde: cada um guarda os seus dados
    e volta a juntá-los na sincronização seguinte. */
 'use strict';
 
 const ACC_KEY = KEY_PREFIX + 'organizador.conta';
 const SYNC_AUTO = KEY_PREFIX + 'organizador.sync.auto';
-const DEFAULT_SERVER = 'http://organizador.local';
-const SERVER_MAX_BYTES = 200 * 1024; // igual ao MAX_DATA_BYTES do config.h do servidor
+// Se a app foi aberta a partir do próprio servidor (ex.: http://organizador.local no telemóvel),
+// o servidor é esse endereço. No site (github.io), na app de PC e em testes (localhost), é organizador.local.
+const DEFAULT_SERVER = /^https?:$/.test(location.protocol) && !/(^|\.)github\.io$|^localhost$|^127\.0\.0\.1$|^\[::1\]$/.test(location.hostname)
+  ? location.origin : 'http://organizador.local';
+const SERVER_MAX_BYTES = 200 * 1024; // limite prudente (o servidor da Raspberry Pi aceita até 5 MB; a ESP8266 só 200 KB)
 const RE_USER = /^[a-z0-9._-]{3,24}$/;
 
 function account() {
@@ -194,7 +197,7 @@ function viewAccount() {
   } else {
     const reg = ui.accMode === 'register';
     content = `
-      <div class="notice">${icon('cloud')}<span>Com uma conta, as tuas tarefas ficam <b>iguais em todos os dispositivos</b> onde entrares. Por agora o servidor é a placa ESP8266 e só funciona <b>na tua rede Wi-Fi de casa</b>.</span></div>
+      <div class="notice">${icon('cloud')}<span>Com uma conta, as tuas tarefas ficam <b>iguais em todos os dispositivos</b> onde entrares. Por agora o servidor é a Raspberry Pi de casa e só funciona <b>na tua rede Wi-Fi de casa</b>.</span></div>
       ${httpsWarn}
       <div class="seg acc-seg" role="tablist">
         <button class="${reg ? '' : 'on'}" data-acc-mode="login">Entrar</button>
@@ -205,8 +208,8 @@ function viewAccount() {
         <label>Palavra-passe<input class="modal-input" id="accPass" name="password" type="password" autocomplete="${reg ? 'new-password' : 'current-password'}" maxlength="64"></label>
         ${reg ? '<label>Repetir palavra-passe<input class="modal-input" id="accPass2" type="password" autocomplete="new-password" maxlength="64"></label>' : ''}
         <details class="acc-adv"${a.server !== DEFAULT_SERVER ? ' open' : ''}><summary>Servidor: <b id="accServerShow">${esc(a.server.replace(/^https?:\/\//, ''))}</b> · mudar</summary>
-          <label>Endereço do servidor (a placa)<input class="modal-input" id="accServer" value="${esc(a.server.replace(/^http:\/\//, ''))}" placeholder="organizador.local" autocapitalize="off" autocorrect="off" spellcheck="false" inputmode="url"></label>
-          <div class="acc-hint">Não é o teu nome: é o endereço da placa na rede, normalmente <b>organizador.local</b> ou o IP que aparece no ecrã da placa (ex.: 192.168.0.109).</div>
+          <label>Endereço do servidor<input class="modal-input" id="accServer" value="${esc(a.server.replace(/^http:\/\//, ''))}" placeholder="organizador.local" autocapitalize="off" autocorrect="off" spellcheck="false" inputmode="url"></label>
+          <div class="acc-hint">Não é o teu nome: é o endereço do servidor na rede, normalmente <b>organizador.local</b> (ou o IP da Raspberry Pi, ex.: 192.168.0.120).</div>
         </details>
         ${reg ? '<div class="acc-hint">Utilizador: 3 a 24 letras minúsculas, números, ponto, _ ou -. Palavra-passe: pelo menos 6 caracteres, e diferente das que usas noutros sítios (por agora a ligação não é cifrada).</div>' : ''}
         <div class="acc-actions">
@@ -223,7 +226,7 @@ function accFormServer() {
   const s = normServer($('#accServer') ? $('#accServer').value : account().server);
   if (!s) {
     const d = $('.acc-adv'); if (d) d.open = true;
-    toast('Endereço do servidor inválido. Usa organizador.local ou o IP da placa (ex.: 192.168.0.109).');
+    toast('Endereço do servidor inválido. Usa organizador.local ou o IP do servidor (ex.: 192.168.0.120).');
   }
   return s;
 }
@@ -258,7 +261,8 @@ async function accSubmit() {
     return toast(apiError(r, reg ? 'Não consegui criar a conta' : 'Não consegui entrar'));
   }
   // Antes de juntar com o servidor pela primeira vez, guardo uma cópia do estado atual.
-  await makeBackup('Antes de sincronizar');
+  // (no máximo 3 s: se o armazenamento do browser estiver pendurado, entra na mesma)
+  await Promise.race([makeBackup('Antes de sincronizar'), new Promise(r => setTimeout(r, 3000))]);
   saveAccount({ server, user: r.data.user || user, token: r.data.token });
   ui.accMode = 'login';
   render();

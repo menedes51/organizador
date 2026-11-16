@@ -12,3 +12,4 @@ organizador-copia*.json
 *.log
 .DS_Store
 __pycache__/
+servidor/dados/

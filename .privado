@@ -14,6 +14,9 @@ organizador-*.json
 organizador-copia*.json
 *.ics
 
+# Contas e dados do servidor, se for corrido nesta pasta (servidor/organizador_servidor.py sem --dados)
+servidor/dados/
+
 # Preferências e ficheiros locais da app de PC
 .webdata/
 .venv/

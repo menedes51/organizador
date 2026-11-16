@@ -4,6 +4,38 @@ Todas as mudanças à app ficam registadas aqui, da mais recente para a mais ant
 
 ---
 
+## v4.5 — 16 nov 2026 · Servidor na Raspberry Pi 5
+
+### Novo
+- **Servidor novo para a Raspberry Pi 5** (`servidor/organizador_servidor.py`, versão **1.0-beta**). Substitui a placa ESP8266. Está escrito em Python, só com a biblioteca padrão (não é preciso instalar nada), e tem a mesma API, por isso a app funciona igual. Em relação à ESP8266:
+  - até **5 MB** de dados por conta (antes 200 KB);
+  - as **sessões expiram** ao fim de 180 dias sem uso, e o servidor só guarda o *hash* de cada token;
+  - **limite de tentativas**: 8 palavras-passe erradas bloqueiam a conta durante 15 minutos;
+  - **mudar a palavra-passe** (`POST /api/password`, termina as sessões dos outros dispositivos) e **apagar a conta** (`POST /api/delete`). Por agora só existem no servidor; na app ficam para depois;
+  - o servidor também **junta os dados item a item** ao gravar: dois dispositivos a gravar ao mesmo tempo já não apagam o trabalho um do outro. Os itens apagados há mais de 30 dias saem de vez;
+  - palavras-passe com PBKDF2-SHA256 (200 000 voltas) e salt;
+  - **serve a própria app** em `http://organizador.local`.
+- **Instalador** `servidor/instalar.sh`:
+  - cria o serviço `organizador`, que arranca sozinho com a Pi, reinicia se falhar e não corre como root;
+  - guarda os dados em `/var/lib/organizador`;
+  - faz **uma cópia de segurança por dia** e guarda as últimas 14.
+  - `servidor/atualizar.sh` traz a versão nova do GitHub e reinicia o servidor.
+- **Guia** `servidor/LEIA-ME.md`: preparar o cartão com o Raspberry Pi Imager, ligar a Pi, instalar, usar na app, manutenção e restaurar cópias.
+- **15 testes do servidor** (`servidor/test_servidor.py`): registo, login, dados, sessões, junção, limite de tentativas, palavra-passe, apagar conta e segurança dos ficheiros servidos.
+
+### Corrigido
+- **Entrar na conta podia ficar pendurado para sempre** se o armazenamento do browser (IndexedDB) não respondesse, porque a cópia de segurança feita antes de entrar nunca terminava. Agora a app espera por essa cópia no máximo 3 segundos.
+
+### Alterado
+- Quando a app é aberta a partir do próprio servidor (ex.: `http://organizador.local` no telemóvel), o campo Servidor já vem preenchido com esse endereço.
+- Os textos do ecrã Conta falam da Raspberry Pi em vez da placa ESP8266.
+- A pasta `esp32/` fica só como histórico. `publicar.sh` passa a enviar a pasta `servidor/`, e `servidor/dados/` (contas e dados, se o servidor correr na pasta do projeto) é privado.
+
+### Ainda não testado
+- O `instalar.sh` ainda não correu numa Raspberry Pi verdadeira. O servidor e a app foram testados no Mac.
+
+---
+
 ## v4.4.1 — 15 nov 2026 · Documentação do projeto
 
 ### Novo
