@@ -102,7 +102,7 @@ const icon = (name, cls = '') =>
   `<svg class="i ${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ICONS[name]}</svg>`;
 
 /* ------------------------------------------------------------------ data */
-const APP_VERSION = '4.4.1';
+const APP_VERSION = '4.5';
 const KEY_PREFIX = window.ORG_TEST ? 'teste.' : '';
 const KEY = KEY_PREFIX + 'organizador.v2';
 const UI_KEY = KEY_PREFIX + 'organizador.ui';

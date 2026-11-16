@@ -7,7 +7,7 @@ App de tarefas, calendário, horário das aulas, disciplinas, notas e trabalhos 
 
 Cada dispositivo guarda as suas tarefas localmente. Para as ter em vários dispositivos:
 
-- **Conta (beta, v4.4):** Mais → *Conta e sincronização*. Liga-se ao servidor ESP8266 da rede de casa (`organizador.local`) e junta os dados item a item (fica a alteração mais recente). Por agora funciona na **app de PC**; o site precisa de HTTPS no servidor.
+- **Conta (beta):** Mais → *Conta e sincronização*. Liga-se ao servidor da rede de casa, uma **Raspberry Pi 5** (`organizador.local`) e junta os dados item a item (fica a alteração mais recente). Por agora funciona na **app de PC**; o site precisa de HTTPS no servidor.
 - **Sem conta:** Mais → *Exportar / Importar cópia*.
 
 ## Estrutura
@@ -18,7 +18,8 @@ Cada dispositivo guarda as suas tarefas localmente. Para as ter em vários dispo
 | `tests/` | Testes automáticos da lógica. Abre `tests/index.html` através de um servidor local (ver abaixo). |
 | `organizador.py` | App de secretária (janela própria, via [pywebview](https://pywebview.flowrl.com/)). Guarda as tarefas em `dados.json` (não vai para o GitHub). |
 | `Organizador.app` | Atalho para abrir a app de secretária no Mac (duplo clique). |
-| `esp32/` | Servidor de contas (beta) — o mesmo código serve **ESP8266** (testado numa ideaspark) e ESP32 — + guia em PDF (`Guia_Servidor.pdf`). |
+| `servidor/` | **Servidor de contas na Raspberry Pi 5** (Python, sem bibliotecas extra), instalador, testes e guia `LEIA-ME.md`. |
+| `esp32/` | Servidor antigo para **ESP8266** / ESP32 (até à v4.4.1), com guia em PDF. Fica como histórico. |
 | `CHANGELOG.md` | Registo de todas as alterações. |
 | `docs/` | Documentação do projeto (`Documentacao_Organizador.pdf`): mapa, ficheiros, sincronização, problemas comuns e glossário. A fonte é `documentacao.html`. |
 | `Documentacao_Organizador.pdf` | Mapa do projeto: mapa mental, o que é cada ficheiro, como tudo se liga e glossário (PR, commit, PWA, token…). |
@@ -52,7 +53,26 @@ A app faz uma cópia automática por dia (guarda as últimas 7). No telemóvel f
 ./publicar.sh "Descrição da alteração"
 ```
 
-## Servidor (ESP8266 / ESP32)
+## Servidor (Raspberry Pi 5)
+
+Guia completo, desde a caixa: [`servidor/LEIA-ME.md`](servidor/LEIA-ME.md). Em resumo, na Pi (Raspberry Pi OS Lite, hostname `organizador`):
+
+```bash
+sudo apt update && sudo apt install -y git
+sudo git clone https://github.com/menedes51/organizador.git /opt/organizador
+sudo /opt/organizador/servidor/instalar.sh
+```
+
+Testes do servidor (no Mac):
+
+```bash
+python3 -m unittest servidor/test_servidor.py -v
+```
+
+## Servidor antigo (ESP8266 / ESP32)
+
+Substituído pela Raspberry Pi na v4.5; as instruções ficam para referência.
+
 
 Ver `esp32/Guia_Servidor.pdf` (passo a passo, para ESP8266 e ESP32). Antes de carregar, põe o nome e a palavra-passe do Wi-Fi em
 `esp32/organizador_servidor/config.h` — **mas não envies esse ficheiro alterado para o GitHub.**

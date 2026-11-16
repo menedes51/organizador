@@ -26,7 +26,7 @@
   code, .mono { font-family: Menlo, Consolas, monospace; font-size: 8.4pt; color: #444; }
   table { width: 100%; border-collapse: collapse; margin: 0 0 8pt; }
   th { text-align: left; font-size: 8.8pt; padding: 4pt 6pt; border-bottom: 1.2pt solid #555; background: #f2f2f4; }
-  td { padding: 4pt 6pt; border-bottom: .6pt solid #ddd; vertical-align: top; font-size: 9pt; }
+  td { padding: 3.4pt 6pt; border-bottom: .6pt solid #ddd; vertical-align: top; font-size: 9pt; }
   td:first-child { width: 31%; }
   .gl td:first-child { width: 22%; font-weight: bold; }
   .band { color: #fff; font-weight: bold; padding: 5pt 7pt; font-size: 9.6pt; }
@@ -58,7 +58,7 @@
 <section class="page">
   <div class="bar"></div>
   <h1>O meu projeto: Organizador</h1>
-  <p class="lead">Documentação pessoal — um mapa do que é cada parte do código, para que serve, como tudo se liga e as palavras importantes que aprendi pelo caminho. Estado em 15 nov 2026: app <b>v4.4.1</b>, servidor <b>0.3-beta</b>.</p>
+  <p class="lead">Documentação pessoal — um mapa do que é cada parte do código, para que serve, como tudo se liga e as palavras importantes que aprendi pelo caminho. Estado em 16 nov 2026: app <b>v4.5</b>, servidor <b>1.0-beta</b> na Raspberry Pi 5 (antes: ESP8266, 0.3-beta).</p>
 
   <div class="map">
     <svg style="position:absolute;inset:0;width:100%;height:100%" viewBox="0 0 180 150" preserveAspectRatio="none">
@@ -82,18 +82,18 @@
       <li><b>Organizador.app</b> <span>ícone de duplo clique</span></li>
       <li><b>.venv</b> <span>o Python só da app</span></li>
       <li><b>dados.json</b> <span>as minhas tarefas (privado)</span></li></ul></div>
-    <div class="card" style="left:0;top:100mm;border-color:#c8734f"><div class="band c-srv">SERVIDOR · esp32/</div><ul>
-      <li><b>ESP8266</b> <span>a placa com Wi-Fi e ecrã</span></li>
-      <li><b>…servidor.ino</b> <span>contas, login e dados</span></li>
-      <li><b>config.h</b> <span>o Wi-Fi (nunca no GitHub)</span></li>
-      <li><b>ecra.h</b> <span>o que aparece no OLED</span></li></ul></div>
+    <div class="card" style="left:0;top:100mm;border-color:#c8734f"><div class="band c-srv">SERVIDOR · servidor/</div><ul>
+      <li><b>Raspberry Pi 5</b> <span>o computador do servidor</span></li>
+      <li><b>…servidor.py</b> <span>contas, login e dados</span></li>
+      <li><b>instalar.sh</b> <span>serviço + cópias diárias</span></li>
+      <li><b>esp32/</b> <span>o servidor antigo (ESP8266)</span></li></ul></div>
     <div class="hub"><b>Organizador</b><span>tarefas · aulas · grupo</span></div>
     <div class="card" style="right:0;top:2mm;border-color:#8b5bd6"><div class="band c-dados">OS DADOS</div><ul>
       <li><b>8 coleções</b> <span>tarefas, aulas, notas…</span></li>
       <li><b>updatedAt</b> <span>a hora de cada mudança</span></li>
       <li><b>cópias</b> <span>1 por dia, guardo 7</span></li>
       <li><b>sincronizar</b> <span>junta item a item</span></li>
-      <li><b>conta</b> <span>as tarefas também na placa</span></li></ul></div>
+      <li><b>conta</b> <span>as tarefas também no servidor</span></li></ul></div>
     <div class="card" style="right:0;top:52mm;border-color:#3f7fd6"><div class="band c-gh">GITHUB</div><ul>
       <li><b>repositório</b> <span>menedes51/organizador</span></li>
       <li><b>PR → merge</b> <span>como entra no main</span></li>
@@ -105,14 +105,14 @@
       <li><b>README · docs/</b> <span>como usar · este documento</span></li>
       <li><b>.privado</b> <span>o que nunca vai para o GitHub</span></li></ul></div>
   </div>
-  <p class="note"><b>Como ler este documento:</b> o mapa mostra as 6 partes do projeto. As páginas seguintes explicam: como tudo se liga, ficheiro a ficheiro, como funcionam as peças mais importantes, a segurança e o estado da placa, o que fazer quando algo corre mal, um glossário e as minhas rotinas. O que é novo nesta versão do documento está marcado com <span class="new">NOVO</span>.</p>
+  <p class="note"><b>Como ler este documento:</b> o mapa mostra as 6 partes do projeto. As páginas seguintes explicam: como tudo se liga, ficheiro a ficheiro, como funcionam as peças mais importantes, a segurança e o estado do servidor, o que fazer quando algo corre mal, um glossário e as minhas rotinas. O que é novo nesta versão do documento está marcado com.</p>
 </section>
 
 <!-- ============================================================ 2 · como tudo se liga -->
 <section class="page">
   <div class="bar"></div>
   <h2>1 · Como tudo se liga</h2>
-  <p>Escrevo o código no Mac. Guardo as alterações com o Git e envio-as para o GitHub num <b>ramo</b>; quando estão prontas, abro um <b>PR</b> e faço <b>merge</b> no <b>main</b>. A partir daí o GitHub publica o site sozinho, e o telemóvel recebe a versão nova na próxima vez que abro a app com internet. A app de PC usa exatamente os mesmos ficheiros da pasta <b>static/</b>, mas guarda as tarefas num ficheiro. O servidor na placa ESP8266 guarda as contas e serve para sincronizar os dispositivos. A placa é programada a partir do <b>PC Windows</b>, pela USB.</p>
+  <p>Escrevo o código no Mac. Guardo as alterações com o Git e envio-as para o GitHub num <b>ramo</b>; quando estão prontas, abro um <b>PR</b> e faço <b>merge</b> no <b>main</b>. A partir daí o GitHub publica o site sozinho, e o telemóvel recebe a versão nova na próxima vez que abro a app com internet. A app de PC usa exatamente os mesmos ficheiros da pasta <b>static/</b>, mas guarda as tarefas num ficheiro. O servidor numa <b>Raspberry Pi 5</b> guarda as contas e serve para sincronizar os dispositivos; para o atualizar, a Pi vai buscar o código ao GitHub (<code>atualizar.sh</code>). Até à v4.4.1 o servidor era uma placa ESP8266, programada pela USB a partir do PC Windows.</p>
 
   <svg class="flow" viewBox="0 0 180 104" font-family="Helvetica, Arial, sans-serif">
     <defs><marker id="ar" viewBox="0 0 6 6" refX="5" refY="3" markerWidth="4" markerHeight="4" orient="auto"><path d="M0 0L6 3L0 6z" fill="#666"/></marker>
@@ -125,8 +125,8 @@
       <rect x="55" y="44" width="40" height="16" rx="2" fill="#e8f4ee" stroke="#2e8b67" stroke-width=".4"/><text x="75" y="50" font-weight="bold" font-size="3.4">App de PC (Mac)</text><text x="75" y="54" fill="#666">organizador.py abre static/</text><text x="75" y="57.5" fill="#666">dados em dados.json</text>
       <rect x="139" y="44" width="40" height="16" rx="2" fill="#efeffb" stroke="#5b5fd6" stroke-width=".4"/><text x="159" y="50" font-weight="bold" font-size="3.4">Telemóvel</text><text x="159" y="54" fill="#666">app instalada (PWA)</text><text x="159" y="57.5" fill="#666">dados no telemóvel</text>
       <rect x="1" y="82" width="36" height="17" rx="2" fill="#f3eefb" stroke="#8b5bd6" stroke-width=".4"/><text x="19" y="88" font-weight="bold" font-size="3.4">Cópias de segurança</text><text x="19" y="92" fill="#666">backups/ (PC)</text><text x="19" y="95.5" fill="#666">IndexedDB (telemóvel)</text>
-      <rect x="80" y="82" width="46" height="17" rx="2" fill="#fbf0ea" stroke="#c8734f" stroke-width=".4"/><text x="103" y="88" font-weight="bold" font-size="3.4">Servidor ESP8266</text><text x="103" y="92" fill="#666">contas + dados de cada conta</text><text x="103" y="95.5" fill="#666">http://organizador.local</text>
-      <rect x="140" y="82" width="38" height="17" rx="2" fill="#f4f4f4" stroke="#888" stroke-width=".4"/><text x="159" y="88" font-weight="bold" font-size="3.4">PC Windows</text><text x="159" y="92" fill="#666">arduino-cli + config.h</text><text x="159" y="95.5" fill="#666">carrega a placa (USB)</text>
+      <rect x="80" y="82" width="46" height="17" rx="2" fill="#fbf0ea" stroke="#c8734f" stroke-width=".4"/><text x="103" y="88" font-weight="bold" font-size="3.4">Servidor · Raspberry Pi 5</text><text x="103" y="92" fill="#666">contas + dados de cada conta</text><text x="103" y="95.5" fill="#666">http://organizador.local</text>
+      <rect x="140" y="82" width="38" height="17" rx="2" fill="#f4f4f4" stroke="#888" stroke-width=".4"/><text x="159" y="88" font-weight="bold" font-size="3.4">Eu, pelo ssh</text><text x="159" y="92" fill="#666">instalar.sh / atualizar.sh</text><text x="159" y="95.5" fill="#666">(código vem do GitHub)</text>
     </g>
     <g stroke="#666" stroke-width=".35" fill="none" marker-end="url(#ar)">
       <path d="M37 10H47"/><path d="M84 10H94"/><path d="M131 10H141"/><path d="M160 18V43"/><path d="M19 18L60 43"/><path d="M140 90.5H127"/>
@@ -138,8 +138,8 @@
       <text x="157" y="30" text-anchor="end">descarrega</text><text x="157" y="33" text-anchor="end">e guarda em cache</text>
       <text x="35" y="31" text-anchor="end">usa os mesmos ficheiros</text>
       <text x="86" y="71" text-anchor="end">sincroniza (HTTP)</text>
-      <text x="141" y="69" fill="#c8734f" text-anchor="start">bloqueado: o site é https</text><text x="141" y="72" fill="#c8734f" text-anchor="start">e a placa http (falta o túnel)</text>
-      <text x="133.5" y="88.5">USB</text>
+      <text x="141" y="69" fill="#c8734f" text-anchor="start">bloqueado: o site é https</text><text x="141" y="72" fill="#c8734f" text-anchor="start">e o servidor http (falta o túnel)</text>
+      <text x="133.5" y="88.5">ssh</text>
     </g>
   </svg>
 
@@ -148,9 +148,9 @@
     <tr><th>Onde</th><th>Como abro</th><th>Onde ficam as tarefas</th><th>Atualiza como</th></tr>
     <tr><td>Telemóvel / browser</td><td>ícone instalado (PWA) ou o site</td><td>no próprio telemóvel (localStorage)</td><td>sozinha, ao abrir com internet</td></tr>
     <tr><td>App de PC (Mac)</td><td>duplo clique em Organizador.app</td><td>no ficheiro <code>dados.json</code></td><td>usa a pasta static/ do Mac</td></tr>
-    <tr><td>Servidor (opcional)</td><td>Mais → Conta e sincronização</td><td>na placa, por conta (LittleFS)</td><td>carrego o código pela USB, a partir do PC Windows</td></tr>
+    <tr><td>Servidor (opcional)</td><td>Mais → Conta e sincronização</td><td>na Raspberry Pi, por conta (<code>/var/lib/organizador</code>)</td><td><code>sudo …/atualizar.sh</code> na Pi (vai buscar ao GitHub)</td></tr>
   </table>
-  <p class="note">Sem conta, cada dispositivo é independente (passo tarefas com Exportar/Importar). Com conta, a app junta os dados de todos os dispositivos através do servidor. Hoje isto funciona na app de PC (conta <b>menedes51</b>, desde 15 nov 2026); no telemóvel falta o HTTPS.</p>
+  <p class="note">Sem conta, cada dispositivo é independente (passo tarefas com Exportar/Importar). Com conta, a app junta os dados de todos os dispositivos através do servidor. Funcionou na app de PC com a ESP8266 (15 nov 2026); com a Raspberry Pi crio a conta outra vez. Na app instalada no telemóvel falta o HTTPS; em casa, o telemóvel pode abrir a app em <code>http://organizador.local</code>.</p>
 </section>
 
 <!-- ============================================================ 3 · ficheiros -->
@@ -180,20 +180,29 @@
     <tr><td><code>organizador.py</code></td><td>Programa em Python que abre a pasta static/ numa janela própria (com o <b>pywebview</b>). Lê e grava o <code>dados.json</code>, faz as cópias em <code>backups/</code>, mostra notificações do macOS e faz pedidos ao servidor só se a janela não conseguir (plano B).</td></tr>
     <tr><td><code>Organizador.app</code></td><td>O ícone para duplo clique. É só um pequeno script que prepara o Python (se faltar) e abre o organizador.py; se a app já estiver aberta, traz a janela para a frente.</td></tr>
     <tr><td><code>.venv/</code></td><td>Um Python só para esta app, com o pywebview instalado. Não vai para o GitHub.</td></tr>
-    <tr><td><code>dados.json, backups/</code></td><td>As minhas tarefas e as cópias de segurança. <b>Privados: nunca vão para o GitHub.</b> <span class="new">NOVO</span> Com a conta ativa, as tarefas também ficam guardadas na placa (passam pela rede de casa, por agora sem cifra).</td></tr>
+    <tr><td><code>dados.json, backups/</code></td><td>As minhas tarefas e as cópias de segurança. <b>Privados: nunca vão para o GitHub.</b> Com a conta ativa, as tarefas também ficam guardadas no servidor (passam pela rede de casa, por agora sem cifra).</td></tr>
   </table>
 </section>
 
 <!-- ============================================================ 4 · servidor + projeto -->
 <section class="page">
   <div class="bar"></div>
-  <div class="band c-srv">Servidor — pasta esp32/<small>o nome é histórico: serve ESP8266 e ESP32</small></div>
+  <div class="band c-srv">Servidor — pasta servidor/<small>corre na Raspberry Pi 5</small> <span class="new">NOVO</span></div>
+  <table>
+    <tr><th>Ficheiro</th><th>Para que serve</th></tr>
+    <tr><td><code>organizador_servidor.py</code></td><td>O servidor, em Python (só biblioteca padrão): contas, sessões, dados de cada conta, junção item a item ao gravar, limite de tentativas, e serve a própria app em <code>http://organizador.local</code>.</td></tr>
+    <tr><td><code>instalar.sh</code></td><td>Instala (ou atualiza) na Pi: o serviço <code>organizador</code> que arranca sozinho, a pasta dos dados <code>/var/lib/organizador</code> e uma cópia de segurança por dia (guarda 14).</td></tr>
+    <tr><td><code>atualizar.sh</code></td><td>Traz a versão nova do GitHub (<code>git pull</code>) e reinicia o servidor.</td></tr>
+    <tr><td><code>test_servidor.py</code></td><td>15 testes do servidor (correm no Mac, sem a Pi).</td></tr>
+    <tr><td><code>LEIA-ME.md</code></td><td>O guia: preparar o cartão, ligar a Pi, instalar, usar na app, manutenção.</td></tr>
+  </table>
+  <div class="band c-srv" style="background:#a98a7c">Servidor antigo — pasta esp32/<small>ESP8266, até à v4.4.1 (fica como histórico)</small></div>
   <table>
     <tr><th>Ficheiro</th><th>Para que serve</th></tr>
     <tr><td><code>organizador_servidor.ino</code></td><td>O programa da placa (<b>sketch</b> do Arduino): liga ao Wi-Fi, guarda contas e dados na memória da placa (LittleFS) e responde aos pedidos da app.</td></tr>
     <tr><td><code>config.h</code></td><td>O nome e a palavra-passe do Wi-Fi, e o limite de dados por conta (200 KB). No GitHub fica só com valores de exemplo; a palavra-passe verdadeira fica só no PC Windows que carrega a placa.</td></tr>
     <tr><td><code>ecra.h</code></td><td>O que aparece no ecrã OLED: endereço IP, sinal Wi-Fi, contas, pedidos, espaço e memória livres, última ação.</td></tr>
-    <tr><td><code>Guia_Servidor.pdf</code></td><td>O guia passo a passo para preparar o PC e carregar o servidor na placa.</td></tr>
+    <tr><td><code>Guia_Servidor.pdf</code></td><td>O guia passo a passo para preparar o PC e carregar o servidor na placa ESP8266.</td></tr>
   </table>
   <div class="band c-q">Projeto, testes e publicação</div>
   <table>
@@ -201,7 +210,7 @@
     <tr><td><code>tests/</code></td><td>42 testes automáticos que correm no browser (datas por texto, médias, repetições, validação, sincronização…). Usam um armazenamento à parte, sem mexer nas minhas tarefas.</td></tr>
     <tr><td><code>CHANGELOG.md</code></td><td>O registo de tudo o que mudou, versão a versão (regra: cada alteração leva uma entrada).</td></tr>
     <tr><td><code>README.md</code></td><td>A página de entrada do repositório: o que é o projeto, a estrutura e como testar e publicar.</td></tr>
-    <tr><td><code>docs/</code> <span class="new">NOVO</span></td><td>Este documento: <code>Documentacao_Organizador.pdf</code> e a fonte <code>documentacao.html</code> (edita-se o HTML e gera-se o PDF com o Chrome; o comando está no topo do ficheiro).</td></tr>
+    <tr><td><code>docs/</code></td><td>Este documento: <code>Documentacao_Organizador.pdf</code> e a fonte <code>documentacao.html</code> (edita-se o HTML e gera-se o PDF com o Chrome; o comando está no topo do ficheiro).</td></tr>
     <tr><td><code>publicar.sh</code></td><td>Envia o projeto para o GitHub, mas só o que está na lista pública, e recusa se for algo privado ou a palavra-passe do Wi-Fi.</td></tr>
     <tr><td><code>.privado, .gitignore</code></td><td>A lista do que nunca vai para o GitHub (o .gitignore é gerado a partir do .privado).</td></tr>
     <tr><td><code>.github/workflows/pages.yml</code></td><td>A receita do <b>GitHub Actions</b>: sempre que o main muda, publica a pasta static/ no GitHub Pages.</td></tr>
@@ -222,15 +231,15 @@
     <tr><th style="width:14%">Passo</th><th>O que acontece</th></tr>
     <tr><td>1. Ler</td><td>A app pede ao servidor os dados da minha conta (<code>GET /api/data</code>).</td></tr>
     <tr><td>2. Juntar</td><td>Junta-os com os do dispositivo, item a item: quando o mesmo item mudou nos dois sítios, fica o que tem o <b>updatedAt</b> mais recente.</td></tr>
-    <tr><td>3. Enviar</td><td>Se houver algo novo, envia o resultado (<code>PUT /api/data</code>). O servidor substitui tudo, por isso a junção é sempre feita na app. Se nada mudou, não envia (poupa a memória da placa).</td></tr>
+    <tr><td>3. Enviar</td><td>Se houver algo novo, envia o resultado (<code>PUT /api/data</code>). A app junta antes de enviar; desde a v4.5 o servidor também junta o que chega com o que já tem, por isso nada se perde mesmo que dois dispositivos gravem ao mesmo tempo. Se nada mudou, não envia.</td></tr>
     <tr><td>Quando</td><td>Ao abrir a app, uns segundos depois de cada alteração, a cada 5 minutos e ao voltar à app. Antes da primeira vez é feita uma cópia de segurança ("Antes de sincronizar"). O ícone da nuvem mostra o estado.</td></tr>
   </table>
-  <div class="box keep"><b>O que convém saber</b> <span class="new">NOVO</span>
+  <div class="box keep"><b>O que convém saber</b>
     <ul style="margin:4pt 0 0;padding-left:14pt">
       <li>Se dois dispositivos mudarem <b>a mesma tarefa</b>, fica só a mudança mais recente ("a última alteração ganha"). Se mudarem tarefas diferentes, ficam as duas.</li>
-      <li>Se dois dispositivos sincronizarem ao mesmo tempo, nada se perde: cada um guarda os seus dados e volta a juntá-los na sincronização seguinte.</li>
+      <li>Se dois dispositivos sincronizarem ao mesmo tempo, nada se perde: o servidor junta os dois envios.</li>
       <li>Um dispositivo que fique <b>mais de 30 dias</b> sem sincronizar pode fazer reaparecer coisas que foram apagadas noutro (as marcas de apagado já foram limpas).</li>
-      <li>Limite: <b>200 KB</b> de dados por conta (a app avisa se passar).</li>
+      <li>Limite: a app envia até <b>200 KB</b> (o servidor da Pi aceita até 5 MB) e avisa se passar.</li>
       <li><b>Sair da conta não apaga</b> as tarefas do dispositivo; só deixam de ser sincronizadas.</li>
       <li>Se a sessão deixar de valer, a app avisa ("A sessão terminou") e basta entrar outra vez.</li>
       <li>Na app de PC, os pedidos vão pela janela (WebKit) e, se falharem, pelo Python. Porquê: o macOS pode bloquear o Python na rede local (ver "Quando algo corre mal").</li>
@@ -240,52 +249,57 @@
   <p>O servidor é uma pequena <b>API</b>: a app fala com ele por <b>HTTP</b>, pedindo endereços (rotas) e recebendo respostas em <b>JSON</b>.</p>
   <table>
     <tr><th>Rota</th><th>O que faz</th></tr>
-    <tr><td><code>GET /</code></td><td>A página de teste, para experimentar sem a app.</td></tr>
+    <tr><td><code>GET /</code></td><td>A própria app (na Pi). Na ESP8266 era uma página de teste.</td></tr>
     <tr><td><code>GET /api/ping</code></td><td>"Estás vivo?" — versão, número de contas, espaço livre, tempo ligado, pedidos.</td></tr>
     <tr><td><code>POST /api/register</code></td><td>Criar conta. A palavra-passe é guardada como <b>hash com salt</b>, nunca em texto.</td></tr>
     <tr><td><code>POST /api/login</code></td><td>Entrar. Se a palavra-passe estiver certa, devolve um <b>token</b> (a "chave" da sessão).</td></tr>
     <tr><td><code>POST /api/logout</code></td><td>Sair: o token deixa de valer.</td></tr>
-    <tr><td><code>GET / PUT /api/data</code></td><td>Ler / gravar os dados da conta. Só funciona com o token no pedido (cabeçalho Authorization). Responde 401 se o token não valer.</td></tr>
+    <tr><td><code>POST /api/password</code> <span class="new">NOVO</span></td><td>Mudar a palavra-passe (pede a atual). Termina as sessões dos outros dispositivos.</td></tr>
+    <tr><td><code>POST /api/delete</code> <span class="new">NOVO</span></td><td>Apagar a conta e os dados (pede a palavra-passe).</td></tr>
+    <tr><td><code>GET / PUT /api/data</code></td><td>Ler / gravar os dados da conta. Só funciona com o token no pedido (cabeçalho Authorization). Responde 401 se o token não valer. Depois de 8 palavras-passe erradas, o login responde 429 durante 15 minutos.</td></tr>
   </table>
 </section>
 
 <!-- ============================================================ 6 · segurança, placa, problemas -->
 <section class="page">
   <div class="bar"></div>
-  <h2>4 · Segurança e estado da placa</h2>
+  <h2>4 · Segurança e estado do servidor</h2>
   <table>
     <tr><th style="width:50%">Já está</th><th>Ainda falta (antes de haver colegas a usar)</th></tr>
-    <tr><td>Palavras-passe com hash + salt · validação de todos os dados (também os que vêm do servidor) · a palavra-passe do Wi-Fi e as tarefas nunca vão para o GitHub · cópias de segurança automáticas · cópia antes da primeira sincronização</td>
-        <td>HTTPS (hoje tudo passa sem cifra na rede) · tokens que expiram (hoje <b>não expiram</b> e acumulam-se no <code>/tokens.json</code>) · limite de tentativas de login · apagar conta e mudar palavra-passe · túnel para usar fora de casa e no telemóvel</td></tr>
+    <tr><td>Palavras-passe com hash + salt · validação de todos os dados (também os que vêm do servidor) · a palavra-passe do Wi-Fi e as tarefas nunca vão para o GitHub · cópias de segurança automáticas · cópia antes da primeira sincronização · <b>na Pi:</b> sessões que expiram (180 dias), só o hash dos tokens guardado, limite de tentativas, palavras-passe com PBKDF2, o servidor não corre como root, cópia diária dos dados</td>
+        <td>HTTPS (hoje tudo passa sem cifra na rede) · túnel para usar fora de casa e no telemóvel · botões na app para mudar a palavra-passe e apagar a conta (no servidor já existem) · reservar o IP da Pi no router</td></tr>
   </table>
 
-  <h3>Estado da placa (15 nov 2026) <span class="new">NOVO</span></h3>
+  <h3>Estado do servidor (16 nov 2026) <span class="new">NOVO</span></h3>
   <table>
     <tr><th>O quê</th><th>Estado</th></tr>
-    <tr><td>Placa</td><td>ESP8266 ideaspark com OLED, servidor <b>0.3-beta</b>, ligada ao Wi-Fi de 2,4 GHz de casa.</td></tr>
-    <tr><td>Endereço</td><td><code>http://organizador.local</code> ou <code>http://192.168.0.109</code>. O IP <b>ainda não está reservado no router</b> e pode mudar: o IP atual aparece sempre no ecrã da placa.</td></tr>
-    <tr><td>Contas</td><td>4 contas: <b>menedes51</b> (a minha, criada a 15 nov 2026 e já sincronizada com a app de PC), <b>teste1</b> e <b>teste2</b> (de teste) e uma 4.ª de que não sei a origem.</td></tr>
-    <tr><td>Antes de chegarem colegas</td><td>Apagar as contas de teste. Hoje não há "apagar conta": é preciso formatar o LittleFS, o que <b>apaga todas as contas e dados</b> (incluindo a minha; volto a entrar e a app reenvia as tarefas).</td></tr>
-    <tr><td>Memória</td><td>~25 KB de RAM livre; as listas de contas e de sessões são lidas inteiras de cada vez — chega para poucos utilizadores.</td></tr>
+    <tr><td>Raspberry Pi 5</td><td>Ainda na caixa. Passos em <code>servidor/LEIA-ME.md</code>: Raspberry Pi OS Lite (64-bit), nome <code>organizador</code>, SSH ligado, depois <code>instalar.sh</code>. O instalador ainda não correu numa Pi verdadeira (o servidor e a app foram testados no Mac).</td></tr>
+    <tr><td>Endereço</td><td><code>http://organizador.local</code> (o nome que se dá à Pi no Imager). O IP vem do router; convém reservá-lo.</td></tr>
+    <tr><td>Contas</td><td>Começa sem contas: crio a minha outra vez (as tarefas estão no PC e voltam a ser enviadas).</td></tr>
+    <tr><td>ESP8266 (antiga)</td><td>Deixou de estar acessível a 16 nov 2026 e foi substituída. Tem de ficar <b>desligada</b>: usava o mesmo nome <code>organizador.local</code>. As contas que lá estavam (menedes51, teste1, teste2 e mais uma) ficam lá.</td></tr>
+    <tr><td>Antes de chegarem colegas</td><td>Reservar o IP, resolver o HTTPS, e apagar contas de teste (agora há <code>POST /api/delete</code>; na app ainda não há botão).</td></tr>
   </table>
 
 </section>
 
 <section class="page">
   <div class="bar"></div>
-  <h2>5 · Quando algo corre mal <span class="new">NOVO</span></h2>
+  <h2>5 · Quando algo corre mal</h2>
   <table>
     <tr><th>Sintoma</th><th>Causa / o que fazer</th></tr>
-    <tr><td>"Não consegui ligar ao servidor"</td><td>Ver a linha <b>Servidor</b> no ecrã Conta: tem de ser <code>organizador.local</code> ou o IP da placa — <b>não o meu nome</b> (aconteceu no primeiro teste). Confirmar que estou no Wi-Fi de casa e que a placa está ligada; se o IP mudou, vê-lo no ecrã da placa.</td></tr>
-    <tr><td>No telemóvel, o ecrã Conta mostra o aviso de HTTPS</td><td>É normal por agora: o site é https e a placa é http, e o browser bloqueia a mistura ("conteúdo misto"). Escrever o IP não resolve. Falta o túnel HTTPS.</td></tr>
-    <tr><td>"A sessão terminou. Entra outra vez."</td><td>O token deixou de valer (ex.: a placa foi formatada). Entrar de novo; as tarefas do dispositivo não se perdem.</td></tr>
+    <tr><td>"Não consegui ligar ao servidor"</td><td>Ver a linha <b>Servidor</b> no ecrã Conta: tem de ser <code>organizador.local</code> ou o IP da Pi — <b>não o meu nome</b> (aconteceu no primeiro teste). Confirmar que estou no Wi-Fi de casa e que a Pi está ligada; no Mac, abrir http://organizador.local/api/ping.</td></tr>
+    <tr><td>No telemóvel, o ecrã Conta mostra o aviso de HTTPS</td><td>É normal por agora: o site é https e o servidor é http, e o browser bloqueia a mistura ("conteúdo misto"). Escrever o IP não resolve. Em casa, posso abrir a app em <code>http://organizador.local</code> (servida pela Pi); para a app instalada falta o túnel HTTPS.</td></tr>
+    <tr><td>"A sessão terminou. Entra outra vez."</td><td>O token deixou de valer (sessão sem uso há 180 dias, palavra-passe mudada noutro dispositivo, ou servidor novo). Entrar de novo; as tarefas do dispositivo não se perdem.</td></tr>
+    <tr><td>"Demasiadas tentativas" <span class="new">NOVO</span></td><td>8 palavras-passe erradas seguidas: esperar 15 minutos.</td></tr>
+    <tr><td><code>ssh</code> não encontra <code>organizador.local</code> <span class="new">NOVO</span></td><td>Esperar 2–3 min depois de ligar a Pi. Confirmar o nome dado no Imager e que a ESP8266 está desligada. Ver o IP da Pi na página do router e usar <code>ssh rui@&lt;IP&gt;</code>.</td></tr>
+    <tr><td>O servidor na Pi não responde <span class="new">NOVO</span></td><td>Pelo ssh: <code>systemctl status organizador</code> e <code>sudo journalctl -u organizador -n 50</code> mostram o erro; <code>sudo systemctl restart organizador</code> reinicia.</td></tr>
     <tr><td>"Não sincronizado: …" / nuvem vermelha</td><td>Ler a mensagem no ecrã Conta e carregar em <b>Sincronizar agora</b>. Sem rede, a app tenta outra vez sozinha.</td></tr>
     <tr><td>A app mostra a versão antiga</td><td>Telemóvel: abrir com internet, fechar e voltar a abrir (versão em Mais). PC: fechar a janela e abrir o Organizador.app outra vez.</td></tr>
-    <tr><td>O Python não chega à placa, mas o browser e o <code>curl</code> chegam</td><td>Permissão <b>Rede local</b> do macOS (Definições → Privacidade e segurança → Rede local). A app já contorna isto pedindo pela janela.</td></tr>
+    <tr><td>O Python não chega ao servidor, mas o browser e o <code>curl</code> chegam</td><td>Permissão <b>Rede local</b> do macOS (Definições → Privacidade e segurança → Rede local). A app já contorna isto pedindo pela janela.</td></tr>
     <tr><td>Os testes mostram resultados antigos</td><td>O browser usou ficheiros em cache: recarregar a página "à força" (Cmd+Shift+R).</td></tr>
     <tr><td>A app de PC não abre</td><td>O Organizador.app volta a preparar a <code>.venv</code> sozinho; se continuar, correr <code>.venv/bin/python organizador.py</code> no Terminal e ler o erro.</td></tr>
-    <tr><td>No Windows, a compilação falha com <code>CreateProcess</code></td><td>Usar uma pasta de compilação curta: <code>--build-path C:\esp8266build</code>.</td></tr>
-    <tr><td>A placa não liga ao Wi-Fi</td><td>Só funciona com redes de <b>2,4 GHz</b>. Ela continua a tentar a cada 10 s; o ecrã mostra "Sem Wi-Fi!".</td></tr>
+    <tr><td>(ESP8266) No Windows, a compilação falha com <code>CreateProcess</code></td><td>Usar uma pasta de compilação curta: <code>--build-path C:\esp8266build</code>.</td></tr>
+    <tr><td>(ESP8266) A placa não liga ao Wi-Fi</td><td>Só funciona com redes de <b>2,4 GHz</b>. Ela continua a tentar a cada 10 s; o ecrã mostra "Sem Wi-Fi!".</td></tr>
   </table>
 </section>
 
@@ -319,9 +333,9 @@
     <tr><td>API · rota · endpoint</td><td>API: a forma de um programa falar com outro. Cada endereço (/api/login…) é uma rota ou endpoint.</td></tr>
     <tr><td>HTTP · GET/POST/PUT</td><td>A linguagem dos pedidos na web. GET = ler, POST = enviar uma ação, PUT = gravar/substituir.</td></tr>
     <tr><td>Código de estado</td><td>O número na resposta: 200 = correu bem, 401 = sem sessão válida, 404 = não existe, 409 = já existe (ex.: nome de conta repetido).</td></tr>
-    <tr><td>HTTPS</td><td>HTTP cifrado (o cadeado). O site usa; a placa ainda não — por isso o telemóvel não lhe consegue ligar.</td></tr>
-    <tr><td>Conteúdo misto <span class="new">NOVO</span></td><td>Quando uma página https tenta falar com um servidor http. O browser bloqueia, para proteger a ligação segura. É o que impede o telemóvel de usar a placa.</td></tr>
-    <tr><td>Origem (origin) <span class="new">NOVO</span></td><td>Protocolo + endereço + porta de uma página (ex.: <code>https://menedes51.github.io</code>). Cada origem tem os seus próprios dados guardados.</td></tr>
+    <tr><td>HTTPS</td><td>HTTP cifrado (o cadeado). O site usa; o servidor ainda não — por isso a app instalada no telemóvel não lhe consegue ligar.</td></tr>
+    <tr><td>Conteúdo misto</td><td>Quando uma página https tenta falar com um servidor http. O browser bloqueia, para proteger a ligação segura. É o que impede a app instalada no telemóvel de usar a placa.</td></tr>
+    <tr><td>Origem (origin)</td><td>Protocolo + endereço + porta de uma página (ex.: <code>https://menedes51.github.io</code>). Cada origem tem os seus próprios dados guardados.</td></tr>
     <tr><td>CORS</td><td>Regra dos browsers sobre que origens podem falar com que servidores. O meu servidor autoriza a app.</td></tr>
     <tr><td>.ics</td><td>Formato de ficheiro de calendário, que abre no Google Calendar, no Calendário da Apple ou no Outlook.</td></tr>
   </table>
@@ -329,40 +343,53 @@
 
 <!-- ============================================================ 8 · glossário (2) -->
 <section class="flow-on">
-  <div class="band c-dados">Dados e sincronização <span class="new">NOVO</span></div>
+  <div class="band c-dados">Dados e sincronização</div>
   <table class="gl">
     <tr><td>Sincronizar</td><td>Pôr dois sítios com os mesmos dados (o dispositivo e o servidor).</td></tr>
     <tr><td>Fusão (merge de dados)</td><td>Juntar duas versões dos dados numa só, item a item.</td></tr>
     <tr><td>"A última alteração ganha"</td><td>(last-write-wins) Regra de fusão: quando o mesmo item mudou em dois sítios, fica o que tem o <code>updatedAt</code> mais recente.</td></tr>
     <tr><td>Marca de apagado</td><td>(tombstone) O <code>deleted: true</code> que fica num item apagado, para os outros dispositivos também o apagarem.</td></tr>
     <tr><td>Impressão digital</td><td>(fingerprint) Um resumo dos dados (id + hora de cada item) que a app compara para saber se há alguma coisa nova a enviar.</td></tr>
-    <tr><td>Servidor de imitação</td><td>(mock) Um servidor falso, com as mesmas rotas, para testar a app sem mexer na placa verdadeira.</td></tr>
+    <tr><td>Servidor de imitação</td><td>(mock) Um servidor falso, com as mesmas rotas, para testar a app sem mexer no servidor verdadeiro.</td></tr>
     <tr><td>Tempo esgotado</td><td>(timeout) Quando um pedido demora demais (10 s na app) e é dado como falhado.</td></tr>
   </table>
-  <div class="band c-srv">Hardware e servidor</div>
+  <div class="band c-srv">Raspberry Pi e servidor <span class="new">NOVO</span></div>
   <table class="gl">
-    <tr><td>ESP8266 / ESP32</td><td>Microcontroladores baratos com Wi-Fi — pequenos computadores numa placa. Uso a ESP8266 ideaspark com ecrã OLED.</td></tr>
+    <tr><td>Raspberry Pi 5</td><td>Um computador pequeno e barato, com Linux. É onde corre o servidor desde a v4.5.</td></tr>
+    <tr><td>Raspberry Pi OS (Lite)</td><td>O sistema operativo da Pi (um Linux). A versão Lite não tem ambiente gráfico: usa-se pelo Terminal.</td></tr>
+    <tr><td>Raspberry Pi Imager</td><td>Programa do Mac que escreve o sistema no cartão microSD e já deixa o nome, o Wi-Fi e o SSH configurados.</td></tr>
+    <tr><td>SSH</td><td>Entrar no Terminal de outro computador pela rede (<code>ssh rui@organizador.local</code>). É assim que mexo na Pi.</td></tr>
+    <tr><td>sudo</td><td>Correr um comando como administrador (root). Pede a palavra-passe da Pi.</td></tr>
+    <tr><td>Serviço (systemd)</td><td>Um programa que o Linux arranca sozinho ao ligar e reinicia se falhar. O meu chama-se <code>organizador</code>.</td></tr>
+    <tr><td>journalctl</td><td>Mostra o registo (o "diário") de um serviço: contas criadas, gravações, erros.</td></tr>
+    <tr><td>git clone · git pull</td><td>Clone: descarregar o repositório inteiro. Pull: trazer só o que mudou. A Pi atualiza-se assim.</td></tr>
+    <tr><td>Porta (80)</td><td>O "número da porta" de um programa num computador. A 80 é a dos sites http, por isso não é preciso escrevê-la.</td></tr>
+  </table>
+  <div class="band c-srv" style="background:#a98a7c">ESP8266 (servidor antigo)</div>
+  <table class="gl">
+    <tr><td>ESP8266 / ESP32</td><td>Microcontroladores baratos com Wi-Fi — pequenos computadores numa placa. Usei a ESP8266 ideaspark com ecrã OLED até à v4.4.1.</td></tr>
     <tr><td>Arduino IDE · arduino-cli</td><td>Programa (com janela / pela linha de comandos) para escrever, compilar e enviar código para a placa.</td></tr>
     <tr><td>Sketch (.ino)</td><td>O programa da placa, no formato do Arduino.</td></tr>
     <tr><td>Compilar · upload</td><td>Compilar: traduzir o código para a linguagem da placa. Upload: enviá-lo pela USB.</td></tr>
     <tr><td>Biblioteca</td><td>Código pronto feito por outros (ex.: ESP Async WebServer para o servidor, U8g2 para o ecrã).</td></tr>
     <tr><td>LittleFS</td><td>O "disco" da placa, na memória flash: guarda as contas e os dados mesmo sem corrente. Formatá-lo apaga tudo.</td></tr>
-    <tr><td>mDNS (.local)</td><td>Dá um nome à placa na rede de casa (organizador.local), em vez de decorar o IP.</td></tr>
-    <tr><td>IP</td><td>O endereço de um aparelho na rede (a minha placa: 192.168.0.109). O router pode mudá-lo, a não ser que o reserve.</td></tr>
-    <tr><td>Reserva de IP (DHCP)</td><td>Dizer ao router para dar sempre o mesmo IP a um aparelho. Ainda está por fazer para a placa.</td></tr>
-    <tr><td>2,4 GHz / 5 GHz</td><td>As duas bandas de Wi-Fi. A placa só liga a 2,4 GHz.</td></tr>
+    <tr><td>mDNS (.local)</td><td>Dá um nome a um aparelho na rede de casa (organizador.local), em vez de decorar o IP.</td></tr>
+    <tr><td>IP</td><td>O endereço de um aparelho na rede (a ESP8266 era 192.168.0.109). O router pode mudá-lo, a não ser que o reserve.</td></tr>
+    <tr><td>Reserva de IP (DHCP)</td><td>Dizer ao router para dar sempre o mesmo IP a um aparelho. Ainda está por fazer para a Pi.</td></tr>
+    <tr><td>2,4 GHz / 5 GHz</td><td>As duas bandas de Wi-Fi. A ESP8266 só ligava a 2,4 GHz; a Pi 5 liga às duas.</td></tr>
     <tr><td>Driver CH340</td><td>Programa que deixa o PC falar com o chip USB da placa.</td></tr>
     <tr><td>Serial Monitor · baud</td><td>Janela que mostra as mensagens da placa pela USB; o baud (115200) é a velocidade.</td></tr>
     <tr><td>OLED · I2C</td><td>O ecrãzinho da placa e a ligação de 2 fios (SDA e SCL) que o liga ao chip.</td></tr>
-    <tr><td>Beta</td><td>Versão que já funciona, mas ainda em teste (o servidor é 0.3-beta).</td></tr>
+    <tr><td>Beta</td><td>Versão que já funciona, mas ainda em teste (o servidor é 1.0-beta).</td></tr>
   </table>
   <div class="band c-dados">Segurança</div>
   <table class="gl">
     <tr><td>Hash</td><td>Transformação de sentido único: dá para verificar uma palavra-passe sem a guardar.</td></tr>
+    <tr><td>PBKDF2 <span class="new">NOVO</span></td><td>Uma forma lenta de propósito de fazer o hash da palavra-passe (200 000 voltas), para adivinhar à força ficar muito caro.</td></tr>
     <tr><td>Salt</td><td>Um valor aleatório juntado à palavra-passe antes do hash, para duas palavras-passe iguais não darem o mesmo resultado.</td></tr>
-    <tr><td>Token</td><td>A chave da sessão que a app recebe ao entrar e envia em cada pedido, em vez da palavra-passe. Devia ser temporária; no servidor atual <b>ainda não expira</b>.</td></tr>
-    <tr><td>Túnel HTTPS</td><td>Um serviço (ex.: Cloudflare Tunnel) que dá um endereço com HTTPS à placa, para a usar fora de casa e no telemóvel.</td></tr>
-    <tr><td>Rede local (macOS) <span class="new">NOVO</span></td><td>Permissão do macOS que decide que programas podem falar com aparelhos da rede de casa. Bloqueava o Python da app de PC.</td></tr>
+    <tr><td>Token</td><td>A chave da sessão que a app recebe ao entrar e envia em cada pedido, em vez da palavra-passe. Na Pi expira ao fim de 180 dias sem uso, e o servidor só guarda o hash.</td></tr>
+    <tr><td>Túnel HTTPS</td><td>Um serviço (ex.: Cloudflare Tunnel) que dá um endereço com HTTPS ao servidor, para a usar fora de casa e no telemóvel.</td></tr>
+    <tr><td>Rede local (macOS)</td><td>Permissão do macOS que decide que programas podem falar com aparelhos da rede de casa. Bloqueava o Python da app de PC.</td></tr>
     <tr><td>RGPD</td><td>A lei europeia de proteção de dados. Importa quando houver dados de outras pessoas.</td></tr>
   </table>
 </section>
@@ -375,6 +402,7 @@
     <tr><td>venv (.venv)</td><td>Um ambiente Python isolado, só para este projeto.</td></tr>
     <tr><td>pywebview</td><td>Biblioteca que abre uma página web numa janela de app no computador (no Mac usa o motor WebKit, o mesmo do Safari).</td></tr>
     <tr><td>Versão vX.Y.Z</td><td>X muda em grandes viragens, Y em funcionalidades novas, Z em correções (ex.: v4.4.1).</td></tr>
+    <tr><td>Biblioteca padrão</td><td>O que já vem com o Python. O servidor só usa isso, por isso não é preciso instalar nada na Pi.</td></tr>
     <tr><td>Changelog · README</td><td>O registo de alterações · a página de apresentação do projeto.</td></tr>
     <tr><td>Teste automático</td><td>Código que verifica outro código sozinho (ex.: "amanhã 14h" tem de dar a data de amanhã às 14:00).</td></tr>
   </table>
@@ -389,14 +417,17 @@
     <tr><td>Abrir a app no Mac</td><td>Duplo clique em <b>Organizador.app</b> (ou no ícone da Dock).</td></tr>
     <tr><td>Pôr a app no telemóvel</td><td>Abrir menedes51.github.io/organizador → Instalar app / Adicionar ao ecrã principal (ou o QR code).</td></tr>
     <tr><td>Atualizar a app no telemóvel</td><td>Abrir com internet, fechar e voltar a abrir. Confirmo a versão em Mais.</td></tr>
-    <tr><td>Usar a conta num dispositivo novo <span class="new">NOVO</span></td><td>Mais → Conta e sincronização → Entrar (servidor <code>organizador.local</code>). As tarefas dos dois lados são juntadas.</td></tr>
-    <tr><td>Ver se está sincronizado <span class="new">NOVO</span></td><td>Ícone da nuvem no fundo da barra lateral (PC) ou Mais → Conta. "Sincronizar agora" força uma sincronização.</td></tr>
+    <tr><td>Usar a conta num dispositivo novo</td><td>Mais → Conta e sincronização → Entrar (servidor <code>organizador.local</code>). As tarefas dos dois lados são juntadas.</td></tr>
+    <tr><td>Ver se está sincronizado</td><td>Ícone da nuvem no fundo da barra lateral (PC) ou Mais → Conta. "Sincronizar agora" força uma sincronização.</td></tr>
     <tr><td>Publicar uma mudança</td><td>Trabalhar num ramo → PR → merge no main (o site atualiza sozinho em 1–2 min). Ou <code>./publicar.sh "o que mudou"</code>.</td></tr>
     <tr><td>Correr os testes</td><td>Na pasta do projeto: <code>python3 -m http.server 8767</code> e abrir localhost:8767/tests/ (devem passar todos).</td></tr>
-    <tr><td>Testar o servidor</td><td>Na rede de casa, abrir http://organizador.local (página de teste). O ecrã da placa mostra o IP.</td></tr>
+    <tr><td>Testar o servidor</td><td>Na rede de casa, abrir http://organizador.local/api/ping (ou a app em http://organizador.local).</td></tr>
+    <tr><td>Entrar na Pi <span class="new">NOVO</span></td><td>No Terminal do Mac: <code>ssh rui@organizador.local</code>.</td></tr>
+    <tr><td>Atualizar o servidor <span class="new">NOVO</span></td><td>Depois do merge no main, na Pi: <code>sudo /opt/organizador/servidor/atualizar.sh</code>.</td></tr>
+    <tr><td>Ver o que o servidor anda a fazer <span class="new">NOVO</span></td><td>Na Pi: <code>sudo journalctl -u organizador -n 50</code>.</td></tr>
     <tr><td>Recuperar tarefas</td><td>Mais → Cópias de segurança → Restaurar (ou Importar uma cópia exportada).</td></tr>
     <tr><td>Pôr tarefas no calendário do telemóvel</td><td>Abrir a tarefa → botão Calendário (o alarme toca mesmo com a app fechada).</td></tr>
-    <tr><td>Atualizar esta documentação <span class="new">NOVO</span></td><td>Editar <code>docs/documentacao.html</code> e gerar o PDF com o comando do topo do ficheiro (ou pedir ao Claude).</td></tr>
+    <tr><td>Atualizar esta documentação</td><td>Editar <code>docs/documentacao.html</code> e gerar o PDF com o comando do topo do ficheiro (ou pedir ao Claude).</td></tr>
     <tr><td>Continuar com o Claude noutra conversa</td><td>Abrir uma sessão nova na pasta do projeto e pedir para ler a memória, o README e o CHANGELOG.</td></tr>
   </table>
 
@@ -405,12 +436,12 @@
     <tr><td style="width:auto"><b>Nunca</b> pôr no GitHub as tarefas, as cópias, nem a palavra-passe do Wi-Fi (o repositório é público).</td></tr>
     <tr><td style="width:auto">Trabalhar sempre num <b>ramo</b> e abrir um <b>PR</b>; o merge no main só depois de rever.</td></tr>
     <tr><td style="width:auto">Cada alteração leva uma entrada no <b>CHANGELOG</b>, com versão, data e o que mudou.</td></tr>
-    <tr><td style="width:auto">Na conta da placa, usar uma palavra-passe que não uso noutros sítios (a ligação ainda não é cifrada).</td></tr>
-    <tr><td style="width:auto">Antes de dar a placa a colegas: apagar as contas de teste, reservar o IP no router e resolver o HTTPS.</td></tr>
+    <tr><td style="width:auto">Na conta do servidor, usar uma palavra-passe que não uso noutros sítios (a ligação ainda não é cifrada).</td></tr>
+    <tr><td style="width:auto">Antes de dar o servidor a colegas: apagar as contas de teste, reservar o IP no router e resolver o HTTPS.</td></tr>
   </table>
 
   <h3>O que vem a seguir</h3>
-  <p>Túnel HTTPS (para o telemóvel e fora de casa) → tornar o servidor mais seguro (tokens que expiram, limite de logins, apagar conta e mudar palavra-passe) → reservar o IP da placa → testar com 10–20 colegas → medir o interesse num plano Pro (1 €/mês ou 10 €/ano) → se houver procura, servidor na cloud e lojas de apps.</p>
+  <p>Instalar a Raspberry Pi 5 e criar a conta outra vez → reservar o IP da Pi → túnel HTTPS na Pi (para o telemóvel e fora de casa) → botões na app para mudar a palavra-passe e apagar a conta → testar com 10–20 colegas → medir o interesse num plano Pro (1 €/mês ou 10 €/ano) → se houver procura, servidor na cloud e lojas de apps.</p>
 </section>
 
 </body>
